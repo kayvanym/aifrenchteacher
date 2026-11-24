@@ -20,3 +20,11 @@ created in `days/` and published with GitHub Pages.
    (claude.ai/code or the Code tab in the desktop app → choose `kayvanym/aifrenchteacher`
    in the repository selector) and say "Bonjour ! Let's have a lesson."
    You can type, dictate or use voice mode. Your progress is saved automatically during the lesson.
+
+## Starting a lesson
+- **Chat (Project "My French teacher")** — best for voice practice. Start with:
+  *"Attach my repository kayvanym/aifrenchteacher and be my French teacher."*
+  The chat then reads `CLAUDE.md` and saves progress to GitHub itself. If it can't reach GitHub
+  (e.g. in voice mode), say "fin de la leçon" and send the summary with the link it gives you.
+- **Claude Code** (claude.ai/code or the desktop Code tab, repository `kayvanym/aifrenchteacher`) —
+  best for writing lessons and for changing the teacher. Progress is saved automatically.

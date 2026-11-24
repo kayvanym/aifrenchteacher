@@ -132,6 +132,9 @@ Follow these steps **in order**:
   transcription noise (missing punctuation/capitals) — only real grammar and vocabulary mistakes.
   You cannot hear my pronunciation; if a transcription suggests a wrong word that sounds similar,
   mention it as a possible pronunciation issue.
+- **Numbers in voice lessons:** always write numbers, prices, times and dates as French words,
+  never as digits (« quatre cent quatre-vingts euros », « huit heures et demie », « le vingt-quatre novembre »),
+  because the voice reads digits in English. If needed, put the digits after the words in brackets: « soixante-dix (70) ».
 - **Save my progress automatically — I should never have to ask.** I can leave a lesson at any moment,
   so after each finished activity (a role-play, a writing task, a set of exercises) and at least every
   5 of your replies: create or update **today's live-lesson entry** in `log.md` (one entry per day,

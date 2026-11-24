@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mes leçons de français</title>
+<style>
+  body{margin:0;background:#f7f5f0;color:#1f2933;font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{background:linear-gradient(135deg,#1d4ed8,#0f2a7a);color:#fff;padding:28px 16px}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{margin:0 0 4px;font-size:30px}
+  header p{margin:0;opacity:.85}
+  main{padding:18px 16px 40px}
+  .stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .stat{background:#fff;border:1px solid #e5e1d8;border-radius:12px;padding:10px 16px}
+  .stat b{display:block;font-size:24px;color:#1d4ed8}
+  a.day{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#fff;border:1px solid #e5e1d8;border-radius:12px;padding:14px 16px;margin:10px 0;text-decoration:none;color:inherit}
+  a.day:hover{border-color:#1d4ed8}
+  a.day.today{border:2px solid #1d4ed8}
+  .d{font-weight:700;color:#1d4ed8;min-width:70px}
+  .t{flex:1}
+  .t small{display:block;color:#6b7280}
+  .date{color:#6b7280;font-size:14px;white-space:nowrap}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>🇫🇷 Mes leçons de français</h1>
+  <p>One new interactive lesson every day — words, reading, conversation, numbers.</p>
+</div></header>
+<main class="wrap">
+  <div class="stats">
+    <div class="stat"><b id="s-days">0</b>lessons</div>
+    <div class="stat"><b id="s-week">1</b>current week</div>
+  </div>
+  <div id="list"></div>
+</main>
+<script>
+/* The teacher adds each new day at the TOP of this array. */
+const DAYS = [
+  { day: 1, date: "2026-11-24", week: 1, theme_fr: "S'installer à Antibes", theme_en: "Moving in and settling down" }
+];
+
+const today = new Date().toISOString().slice(0, 10);
+document.getElementById("s-days").textContent = DAYS.length;
+document.getElementById("s-week").textContent = DAYS.length ? DAYS[0].week : 1;
+const list = document.getElementById("list");
+DAYS.forEach(d => {
+  const a = document.createElement("a");
+  a.className = "day" + (d.date === today ? " today" : "");
+  a.href = "days/" + d.date + ".html";
+  a.innerHTML = '<span class="d"></span><span class="t"><span class="fr"></span><small></small></span><span class="date"></span>';
+  a.querySelector(".d").textContent = "Jour " + d.day;
+  a.querySelector(".fr").textContent = d.theme_fr;
+  a.querySelector("small").textContent = d.theme_en + " · Week " + d.week;
+  a.querySelector(".date").textContent = d.date === today ? "Aujourd'hui" : d.date;
+  list.appendChild(a);
+});
+</script>
+</body>
+</html>

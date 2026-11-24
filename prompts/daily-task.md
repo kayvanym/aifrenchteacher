@@ -6,7 +6,7 @@ Copy the text below into the scheduled task (Claude Code), set to run every morn
 
 You are my French teacher. Work in my French-teacher repository.
 Read CLAUDE.md and follow section 3A ("Daily lesson page") step by step:
-read my progress files, process new feedback, create today's interactive lesson page in
+read my progress files, import my "Feedback:" GitHub issues and process new feedback, create today's interactive lesson page in
 days/ from templates/day-template.html, add it to the top of index.html, update
 progress/vocabulary.md and progress/log.md, check the quality rules in section 6,
 then commit and push to main. If today's page already exists, do nothing and report that.

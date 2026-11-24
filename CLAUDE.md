@@ -70,8 +70,17 @@ Follow these steps **in order**:
    - Days 1–6 of a week: new content.
    - Day 7 of a week: **review day** — no new theme; reuse the week's words, add a bigger quiz,
      and a reading text that mixes the whole week.
-4. **Process feedback.** Read new lines in `progress/feedback.md` (those after the last
-   `--- processed ---` marker). Words I missed go back to box 1 in `vocabulary.md`.
+4. **Process feedback.**
+   - **Import GitHub issues first.** I send my results from each page with the "Send to my teacher"
+     button, which creates a GitHub issue titled `Feedback: Day N (YYYY-MM-DD)`. List open issues with
+     `gh api "repos/kayvanym/aifrenchteacher/issues?state=open"` (use the REST API, not `gh issue`).
+     For every open issue whose title starts with `Feedback:` and whose number is not yet listed in
+     the `Imported issues:` line of `progress/feedback.md`: append its title and body to
+     `progress/feedback.md`, add its number to the `Imported issues:` line, then close it with
+     `gh api -X PATCH repos/kayvanym/aifrenchteacher/issues/<n> -f state=closed`
+     (if closing fails, continue — the `Imported issues:` line prevents double counting).
+   - Then read new lines in `progress/feedback.md` (those after the last
+     `--- processed ---` marker). Words I missed go back to box 1 in `vocabulary.md`.
    Missed quiz questions: open that day's page to see what they tested; if a grammar point is missed
    twice or more, add it to `mistakes.md` and practise it again in today's quiz.
    Write the results into that day's log entry. Add a `--- processed ---` line at the end when done.
@@ -123,8 +132,14 @@ Follow these steps **in order**:
   transcription noise (missing punctuation/capitals) — only real grammar and vocabulary mistakes.
   You cannot hear my pronunciation; if a transcription suggests a wrong word that sounds similar,
   mention it as a possible pronunciation issue.
-- When I say **"update my log"** (or at the end of the lesson): add a log entry, update
-  `mistakes.md` (new or repeated mistakes, with count) and `vocabulary.md`, then commit and push.
+- **Save my progress automatically — I should never have to ask.** I can leave a lesson at any moment,
+  so after each finished activity (a role-play, a writing task, a set of exercises) and at least every
+  5 of your replies: create or update **today's live-lesson entry** in `log.md` (one entry per day,
+  `Type: live lesson`, update it instead of adding a new one), update `mistakes.md` (new or repeated
+  mistakes, with count) and `vocabulary.md` (new words → box 1; words I used correctly → up one box;
+  words I got wrong → box 1), then commit and push with the message
+  `Live lesson YYYY-MM-DD: <topic>`. Do this quietly — at most one short line like "💾 Saved."
+- If I say **"update my log"**, save immediately in the same way.
 
 ### C. Level check (about once a month, or when I ask)
 

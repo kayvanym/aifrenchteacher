@@ -117,6 +117,12 @@ Follow these steps **in order**:
   my sentence → correct sentence → a short reason. Do not interrupt the conversation for every mistake.
 - Reuse words from `vocabulary.md` that are due, so I review them naturally.
 - Role-plays are welcome: neighbour, syndic (Foncia), baker, pharmacist, doctor, bank, phone calls.
+- **Voice lessons:** I sometimes talk to you with voice mode or dictation, so my messages may be
+  speech transcriptions (no punctuation, odd spelling of names). Then: keep your replies short
+  (2–4 sentences), ask one question at a time, and keep corrections compact. Do not correct
+  transcription noise (missing punctuation/capitals) — only real grammar and vocabulary mistakes.
+  You cannot hear my pronunciation; if a transcription suggests a wrong word that sounds similar,
+  mention it as a possible pronunciation issue.
 - When I say **"update my log"** (or at the end of the lesson): add a log entry, update
   `mistakes.md` (new or repeated mistakes, with count) and `vocabulary.md`, then commit and push.
 

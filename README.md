@@ -16,5 +16,7 @@ created in `days/` and published with GitHub Pages.
 ## Daily routine
 1. Open today's page, do all sections (15–20 min).
 2. Press **Copy my results** and paste the text into `progress/feedback.md`.
-3. For speaking/writing practice, start a session in Claude Code in this repository and say
-   "Bonjour ! Let's have a lesson." End with "update my log".
+3. For speaking/writing practice, start a session connected to this repository
+   (claude.ai/code or the Code tab in the desktop app → choose `kayvanym/aifrenchteacher`
+   in the repository selector) and say "Bonjour ! Let's have a lesson."
+   You can type, dictate or use voice mode. End with "update my log" so your progress is saved.

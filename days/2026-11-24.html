@@ -10,147 +10,587 @@
 <script>
 /* ==========================================================================
    LESSON DATA — the teacher replaces ONLY the object between the markers.
+   All texts for the learner (tr, intro, rules, notes, quiz questions, explanations)
+   are written in ONE help language, given in `lang`.
    Schema:
    {
      day: Number, date: "YYYY-MM-DD", week: Number,
-     theme: { fr: String, en: String },
-     words: [ { fr, en, sv, fa, example, example_en, review?: true } ],      // 10–14 items
-     tip?: { title?: String, en, sv, fa },
-     reading: { title: String, lines: [ { fr, en, sv, fa } ] },               // 10–15 lines
+     lang: "en" | "sv" | "fa",                        // today's help language (chosen at random)
+     theme: { fr: String, tr: String },
+     words: [ { fr, tr, example, example_tr, review?: true } ],        // 10–14 items
+     grammar: {
+       title: String,                                 // in French, e.g. "Le passé composé : avoir ou être ?"
+       intro: String,                                 // 1–2 sentences: what it is, when to use it
+       rules: [String],                               // 2–5 short rules, each with a French mini-example
+       table?: { caption?: String, headers: [String], rows: [[String]] },  // conjugation/forms (French)
+       examples: [ { fr, tr, note? } ],               // 3–5 example sentences; note = why (short)
+       watch_out?: { wrong, right, why }              // one typical mistake (French wrong/right)
+     },
+     reading: { title: String, lines: [ { fr, tr } ] },                 // 10–15 lines
      conversation: { title: String, situation: String,
-                     lines: [ { speaker, fr, en, sv, fa } ] },                // 6–10 lines
-     numbers: [ { n: Number, fr: String, hint: String } ],                    // 8–12 items
-     quiz: [ {                                                                // 10–20 questions
+                     lines: [ { speaker, fr, tr } ] },                  // 6–10 lines
+     numbers: [ { n: Number, fr: String, hint: String } ],              // 8–12 items
+     quiz: [ {                                                          // 10–20 questions
        type: "vocab" | "grammar" | "reading" | "conversation" | "numbers",
-       q: String,              // the question (English or simple French)
+       q: String,              // the question (help language)
        fr?: String,            // optional French sentence shown with a 🔊 button
        listen?: true,          // if true, fr is NOT shown — only played (listening question)
        options: [String],      // 3–4 options
        answer: Number,         // index of the correct option in `options` (0-based)
-       explain: String         // short explanation shown after answering
+       explain: String         // short explanation (help language)
      } ]
    }
    ========================================================================== */
 const LESSON = /*LESSON_DATA_START*/{
-  day: 1,
-  date: "2026-11-24",
-  week: 1,
-  theme: { fr: "S'installer à Antibes", en: "Moving in and settling down" },
-  words: [
-    { fr: "le déménagement", en: "the move (moving house)", sv: "flytten", fa: "اسباب‌کشی",
-      example: "Le déménagement a duré toute la journée.", example_en: "The move took the whole day." },
-    { fr: "emménager", en: "to move in", sv: "flytta in", fa: "به خانهٔ جدید نقل مکان کردن",
-      example: "Nous avons emménagé en mars.", example_en: "We moved in in March." },
-    { fr: "s'installer", en: "to settle in", sv: "installera sig, komma i ordning", fa: "مستقر شدن",
-      example: "Je commence à m'installer dans mon nouvel appartement.", example_en: "I'm starting to settle into my new apartment." },
-    { fr: "le carton", en: "cardboard box", sv: "kartong, flyttkartong", fa: "کارتن",
-      example: "Il y a encore dix cartons dans le salon.", example_en: "There are still ten boxes in the living room." },
-    { fr: "la clé", en: "key", sv: "nyckel", fa: "کلید",
-      example: "J'ai perdu la clé de la cave.", example_en: "I lost the key to the cellar." },
-    { fr: "l'étage (m)", en: "floor (storey)", sv: "våning", fa: "طبقه",
-      example: "J'habite au deuxième étage.", example_en: "I live on the second floor." },
-    { fr: "l'ascenseur (m)", en: "lift / elevator", sv: "hiss", fa: "آسانسور",
-      example: "L'ascenseur est en panne aujourd'hui.", example_en: "The lift is out of order today." },
-    { fr: "la boîte aux lettres", en: "mailbox", sv: "brevlåda", fa: "صندوق پست",
-      example: "Mon nom n'est pas encore sur la boîte aux lettres.", example_en: "My name isn't on the mailbox yet." },
-    { fr: "le quartier", en: "neighbourhood", sv: "kvarter, område", fa: "محله",
-      example: "C'est un quartier calme, près de la mer.", example_en: "It's a quiet neighbourhood near the sea." },
-    { fr: "le gardien / la gardienne", en: "caretaker", sv: "fastighetsskötare, portvakt", fa: "سرایدار",
-      example: "La gardienne m'a donné le badge du parking.", example_en: "The caretaker gave me the parking badge." },
-    { fr: "les charges (f)", en: "service charges (building costs)", sv: "avgifter (gemensamma kostnader)", fa: "هزینه‌های مشترک ساختمان (شارژ)",
-      example: "Les charges sont payées tous les trois mois.", example_en: "The service charges are paid every three months." },
-    { fr: "le syndic", en: "building management company", sv: "förvaltare (av fastigheten)", fa: "شرکت مدیریت ساختمان",
-      example: "J'ai envoyé un courriel au syndic.", example_en: "I sent an email to the building management." }
-  ],
-  tip: {
-    title: "Passé composé : avoir ou être ?",
-    en: "Most verbs use « avoir »: j'ai emménagé, j'ai perdu. About 15 verbs of movement or change use « être » (aller, venir, arriver, partir, entrer, sortir, monter, descendre, rester, tomber…), and so do all reflexive verbs: je me suis installé(e). With « être », the participle agrees with the subject: elle est arrivée, ils sont partis.",
-    sv: "De flesta verb använder « avoir »: j'ai emménagé, j'ai perdu. Ungefär 15 verb för rörelse eller förändring använder « être » (aller, venir, arriver, partir, entrer, sortir, monter, descendre, rester, tomber…), och det gör också alla reflexiva verb: je me suis installé(e). Med « être » böjs participet efter subjektet: elle est arrivée, ils sont partis.",
-    fa: "بیشتر فعل‌ها با «avoir» صرف می‌شوند: j'ai emménagé، j'ai perdu. حدود ۱۵ فعلِ حرکت یا تغییر با «être» صرف می‌شوند (aller، venir، arriver، partir، entrer، sortir، monter، descendre، rester، tomber…) و همهٔ فعل‌های انعکاسی هم همین‌طور: je me suis installé(e). با «être»، اسم مفعول با فاعل مطابقت می‌کند: elle est arrivée، ils sont partis."
+  "day": 1,
+  "date": "2026-11-24",
+  "week": 1,
+  "lang": "sv",
+  "theme": {
+    "fr": "S'installer à Antibes",
+    "tr": "Att flytta in och komma i ordning"
   },
-  reading: {
-    title: "Le déménagement de Sara",
-    lines: [
-      { fr: "Le mois dernier, Sara a quitté Lyon pour s'installer à Antibes.", en: "Last month, Sara left Lyon to settle in Antibes.", sv: "Förra månaden lämnade Sara Lyon för att flytta till Antibes.", fa: "ماه گذشته، سارا لیون را ترک کرد تا در آنتیب مستقر شود." },
-      { fr: "Le jour du déménagement, il a fait très beau.", en: "On the day of the move, the weather was very nice.", sv: "På flyttdagen var det väldigt fint väder.", fa: "روز اسباب‌کشی، هوا خیلی خوب بود." },
-      { fr: "Les déménageurs sont arrivés à huit heures avec un grand camion.", en: "The movers arrived at eight o'clock with a big truck.", sv: "Flyttgubbarna kom klockan åtta med en stor lastbil.", fa: "کارگران اسباب‌کشی ساعت هشت با یک کامیون بزرگ رسیدند." },
-      { fr: "Ils ont monté plus de quarante cartons au deuxième étage.", en: "They carried more than forty boxes up to the second floor.", sv: "De bar upp mer än fyrtio kartonger till andra våningen.", fa: "آن‌ها بیش از چهل کارتن را به طبقهٔ دوم بردند." },
-      { fr: "Heureusement, il y a un ascenseur dans la résidence !", en: "Luckily, there is a lift in the building!", sv: "Som tur är finns det en hiss i huset!", fa: "خوشبختانه، در ساختمان آسانسور هست!" },
-      { fr: "L'après-midi, la gardienne, madame Roche, est venue dire bonjour.", en: "In the afternoon, the caretaker, Mrs Roche, came to say hello.", sv: "På eftermiddagen kom fastighetsskötaren, fru Roche, för att hälsa.", fa: "بعدازظهر، سرایدار، خانم روش، برای سلام کردن آمد." },
-      { fr: "Elle a donné à Sara deux clés et un badge pour le parking.", en: "She gave Sara two keys and a parking badge.", sv: "Hon gav Sara två nycklar och en parkeringsbricka.", fa: "او دو کلید و یک کارت پارکینگ به سارا داد." },
-      { fr: "Elle a aussi expliqué comment fonctionne la boîte aux lettres.", en: "She also explained how the mailbox works.", sv: "Hon förklarade också hur brevlådan fungerar.", fa: "او همچنین توضیح داد که صندوق پست چطور کار می‌کند." },
-      { fr: "Le soir, Sara était fatiguée, mais très contente.", en: "In the evening, Sara was tired but very happy.", sv: "På kvällen var Sara trött men mycket glad.", fa: "شب، سارا خسته بود، اما خیلی خوشحال." },
-      { fr: "Elle s'est promenée dans le quartier et elle a trouvé une petite boulangerie.", en: "She took a walk around the neighbourhood and found a small bakery.", sv: "Hon promenerade i kvarteret och hittade ett litet bageri.", fa: "او در محله قدم زد و یک نانوایی کوچک پیدا کرد." },
-      { fr: "Le lendemain, elle a reçu une lettre du syndic.", en: "The next day, she received a letter from the building management.", sv: "Dagen efter fick hon ett brev från förvaltaren.", fa: "روز بعد، او نامه‌ای از شرکت مدیریت ساختمان دریافت کرد." },
-      { fr: "Dans la lettre, il y avait des informations sur les charges et la prochaine assemblée générale.", en: "The letter contained information about the service charges and the next general meeting.", sv: "I brevet fanns information om avgifterna och nästa årsstämma.", fa: "در نامه، اطلاعاتی دربارهٔ هزینه‌های مشترک و مجمع عمومی بعدی بود." },
-      { fr: "Sara a pensé : « Maintenant, je dois vraiment améliorer mon français ! »", en: "Sara thought: \"Now I really have to improve my French!\"", sv: "Sara tänkte: \"Nu måste jag verkligen bli bättre på franska!\"", fa: "سارا فکر کرد: «حالا واقعاً باید فرانسه‌ام را بهتر کنم!»" }
+  "words": [
+    {
+      "fr": "le déménagement",
+      "tr": "flytten",
+      "example": "Le déménagement a duré toute la journée.",
+      "example_tr": "Flytten tog hela dagen."
+    },
+    {
+      "fr": "emménager",
+      "tr": "flytta in",
+      "example": "Nous avons emménagé en mars.",
+      "example_tr": "Vi flyttade in i mars."
+    },
+    {
+      "fr": "s'installer",
+      "tr": "installera sig, komma i ordning",
+      "example": "Je commence à m'installer dans mon nouvel appartement.",
+      "example_tr": "Jag börjar komma i ordning i min nya lägenhet."
+    },
+    {
+      "fr": "le carton",
+      "tr": "kartong, flyttkartong",
+      "example": "Il y a encore dix cartons dans le salon.",
+      "example_tr": "Det står fortfarande tio kartonger i vardagsrummet."
+    },
+    {
+      "fr": "la clé",
+      "tr": "nyckel",
+      "example": "J'ai perdu la clé de la cave.",
+      "example_tr": "Jag har tappat bort nyckeln till källaren."
+    },
+    {
+      "fr": "l'étage (m)",
+      "tr": "våning",
+      "example": "J'habite au deuxième étage.",
+      "example_tr": "Jag bor på andra våningen."
+    },
+    {
+      "fr": "l'ascenseur (m)",
+      "tr": "hiss",
+      "example": "L'ascenseur est en panne aujourd'hui.",
+      "example_tr": "Hissen är trasig i dag."
+    },
+    {
+      "fr": "la boîte aux lettres",
+      "tr": "brevlåda",
+      "example": "Mon nom n'est pas encore sur la boîte aux lettres.",
+      "example_tr": "Mitt namn står inte på brevlådan än."
+    },
+    {
+      "fr": "le quartier",
+      "tr": "kvarter, område",
+      "example": "C'est un quartier calme, près de la mer.",
+      "example_tr": "Det är ett lugnt område nära havet."
+    },
+    {
+      "fr": "le gardien / la gardienne",
+      "tr": "fastighetsskötare",
+      "example": "La gardienne m'a donné le badge du parking.",
+      "example_tr": "Fastighetsskötaren gav mig parkeringsbrickan."
+    },
+    {
+      "fr": "les charges (f)",
+      "tr": "avgifter (gemensamma kostnader)",
+      "example": "Les charges sont payées tous les trois mois.",
+      "example_tr": "Avgifterna betalas var tredje månad."
+    },
+    {
+      "fr": "le syndic",
+      "tr": "förvaltare (av fastigheten)",
+      "example": "J'ai envoyé un courriel au syndic.",
+      "example_tr": "Jag skickade ett mejl till förvaltaren."
+    }
+  ],
+  "grammar": {
+    "title": "Le passé composé : avoir ou être ?",
+    "intro": "Passé composé används för avslutade händelser i det förflutna. Det bildas med hjälpverbet avoir eller être + perfekt particip.",
+    "rules": [
+      "De flesta verb använder « avoir » : j'ai emménagé, nous avons pris.",
+      "Ungefär 15 verb för rörelse eller förändring använder « être » : aller, venir, arriver, partir, entrer, sortir, monter, descendre, rester, tomber…",
+      "Alla reflexiva verb använder « être » : je me suis installé(e).",
+      "Med « être » böjs participet efter subjektet : elle est arrivée, ils sont partis."
+    ],
+    "table": {
+      "caption": "arriver (med être) och emménager (med avoir)",
+      "headers": [
+        "",
+        "arriver",
+        "emménager"
+      ],
+      "rows": [
+        [
+          "je",
+          "suis arrivé(e)",
+          "ai emménagé"
+        ],
+        [
+          "tu",
+          "es arrivé(e)",
+          "as emménagé"
+        ],
+        [
+          "il / elle",
+          "est arrivé / arrivée",
+          "a emménagé"
+        ],
+        [
+          "nous",
+          "sommes arrivé(e)s",
+          "avons emménagé"
+        ],
+        [
+          "vous",
+          "êtes arrivé(e)(s)",
+          "avez emménagé"
+        ],
+        [
+          "ils / elles",
+          "sont arrivés / arrivées",
+          "ont emménagé"
+        ]
+      ]
+    },
+    "examples": [
+      {
+        "fr": "Les déménageurs sont arrivés à huit heures.",
+        "tr": "Flyttgubbarna kom klockan åtta.",
+        "note": "arriver → être · plural → -s"
+      },
+      {
+        "fr": "Sara a trouvé une petite boulangerie.",
+        "tr": "Sara hittade ett litet bageri.",
+        "note": "trouver → avoir"
+      },
+      {
+        "fr": "Elle s'est promenée dans le quartier.",
+        "tr": "Hon promenerade i kvarteret.",
+        "note": "reflexivt verb → être · femininum → -e"
+      },
+      {
+        "fr": "Nous avons pris l'ascenseur.",
+        "tr": "Vi tog hissen.",
+        "note": "prendre → pris (oregelbundet particip)"
+      }
+    ],
+    "watch_out": {
+      "wrong": "J'ai arrivé hier.",
+      "right": "Je suis arrivé hier.",
+      "why": "« Arriver » är ett rörelseverb och tar alltid « être »."
+    }
+  },
+  "reading": {
+    "title": "Le déménagement de Sara",
+    "lines": [
+      {
+        "fr": "Le mois dernier, Sara a quitté Lyon pour s'installer à Antibes.",
+        "tr": "Förra månaden lämnade Sara Lyon för att flytta till Antibes."
+      },
+      {
+        "fr": "Le jour du déménagement, il a fait très beau.",
+        "tr": "På flyttdagen var det väldigt fint väder."
+      },
+      {
+        "fr": "Les déménageurs sont arrivés à huit heures avec un grand camion.",
+        "tr": "Flyttgubbarna kom klockan åtta med en stor lastbil."
+      },
+      {
+        "fr": "Ils ont monté plus de quarante cartons au deuxième étage.",
+        "tr": "De bar upp mer än fyrtio kartonger till andra våningen."
+      },
+      {
+        "fr": "Heureusement, il y a un ascenseur dans la résidence !",
+        "tr": "Som tur är finns det en hiss i huset!"
+      },
+      {
+        "fr": "L'après-midi, la gardienne, madame Roche, est venue dire bonjour.",
+        "tr": "På eftermiddagen kom fastighetsskötaren, fru Roche, för att hälsa."
+      },
+      {
+        "fr": "Elle a donné à Sara deux clés et un badge pour le parking.",
+        "tr": "Hon gav Sara två nycklar och en parkeringsbricka."
+      },
+      {
+        "fr": "Elle a aussi expliqué comment fonctionne la boîte aux lettres.",
+        "tr": "Hon förklarade också hur brevlådan fungerar."
+      },
+      {
+        "fr": "Le soir, Sara était fatiguée, mais très contente.",
+        "tr": "På kvällen var Sara trött men mycket glad."
+      },
+      {
+        "fr": "Elle s'est promenée dans le quartier et elle a trouvé une petite boulangerie.",
+        "tr": "Hon promenerade i kvarteret och hittade ett litet bageri."
+      },
+      {
+        "fr": "Le lendemain, elle a reçu une lettre du syndic.",
+        "tr": "Dagen efter fick hon ett brev från förvaltaren."
+      },
+      {
+        "fr": "Dans la lettre, il y avait des informations sur les charges et la prochaine assemblée générale.",
+        "tr": "I brevet fanns information om avgifterna och nästa årsstämma."
+      },
+      {
+        "fr": "Sara a pensé : « Maintenant, je dois vraiment améliorer mon français ! »",
+        "tr": "Sara tänkte: \"Nu måste jag verkligen bli bättre på franska!\""
+      }
     ]
   },
-  conversation: {
-    title: "Une question pour la gardienne",
-    situation: "A few days after the move, Sara meets the caretaker, Madame Roche, in the entrance hall.",
-    lines: [
-      { speaker: "Sara", fr: "Bonjour, madame Roche. Excusez-moi de vous déranger.", en: "Hello, Mrs Roche. Sorry to bother you.", sv: "Hej, fru Roche. Ursäkta att jag stör.", fa: "سلام خانم روش. ببخشید مزاحمتان می‌شوم." },
-      { speaker: "Mme Roche", fr: "Bonjour, Sara ! Pas de problème. Je peux vous aider ?", en: "Hello, Sara! No problem. Can I help you?", sv: "Hej, Sara! Inga problem. Kan jag hjälpa till?", fa: "سلام سارا! اشکالی ندارد. می‌توانم کمکتان کنم؟" },
-      { speaker: "Sara", fr: "Oui. Mon nom n'est pas encore sur la boîte aux lettres. Qu'est-ce que je dois faire ?", en: "Yes. My name isn't on the mailbox yet. What should I do?", sv: "Ja. Mitt namn står inte på brevlådan än. Vad ska jag göra?", fa: "بله. اسم من هنوز روی صندوق پست نیست. چه کار باید بکنم؟" },
-      { speaker: "Mme Roche", fr: "Il faut demander une étiquette au syndic. Je peux leur envoyer un message, si vous voulez.", en: "You need to ask the building management for a name label. I can send them a message, if you like.", sv: "Du måste be förvaltaren om en namnskylt. Jag kan skicka ett meddelande till dem, om du vill.", fa: "باید از شرکت مدیریت ساختمان یک برچسب اسم بخواهید. اگر بخواهید، می‌توانم برایشان پیام بفرستم." },
-      { speaker: "Sara", fr: "Ce serait très gentil, merci. Autre chose : l'ascenseur est en panne depuis hier.", en: "That would be very kind, thank you. Another thing: the lift has been out of order since yesterday.", sv: "Det vore väldigt snällt, tack. En sak till: hissen har varit trasig sedan i går.", fa: "خیلی لطف می‌کنید، ممنون. یک چیز دیگر: آسانسور از دیروز خراب است." },
-      { speaker: "Mme Roche", fr: "Oui, je sais. Le technicien va venir demain matin.", en: "Yes, I know. The technician is coming tomorrow morning.", sv: "Ja, jag vet. Teknikern kommer i morgon bitti.", fa: "بله، می‌دانم. تکنسین فردا صبح می‌آید." },
-      { speaker: "Sara", fr: "D'accord. Et les charges, je les paie quand ?", en: "OK. And the service charges — when do I pay them?", sv: "Okej. Och avgifterna, när betalar jag dem?", fa: "باشد. و هزینه‌های مشترک را کی پرداخت می‌کنم؟" },
-      { speaker: "Mme Roche", fr: "Tous les trois mois. Vous allez recevoir un appel de fonds du syndic.", en: "Every three months. You will receive a payment request (appel de fonds) from the building management.", sv: "Var tredje månad. Du kommer att få en betalningsavi (appel de fonds) från förvaltaren.", fa: "هر سه ماه یک بار. یک درخواست پرداخت (appel de fonds) از شرکت مدیریت ساختمان دریافت می‌کنید." },
-      { speaker: "Sara", fr: "Parfait. Merci beaucoup pour votre aide !", en: "Perfect. Thank you very much for your help!", sv: "Perfekt. Tack så mycket för hjälpen!", fa: "عالی است. خیلی ممنون از کمکتان!" },
-      { speaker: "Mme Roche", fr: "Je vous en prie. Bonne installation !", en: "You're welcome. Good luck settling in!", sv: "Varsågod. Lycka till med inflyttningen!", fa: "خواهش می‌کنم. امیدوارم خوب مستقر شوید!" }
+  "conversation": {
+    "title": "Une question pour la gardienne",
+    "situation": "Några dagar efter flytten träffar Sara fastighetsskötaren, madame Roche, i entrén.",
+    "lines": [
+      {
+        "speaker": "Sara",
+        "fr": "Bonjour, madame Roche. Excusez-moi de vous déranger.",
+        "tr": "Hej, fru Roche. Ursäkta att jag stör."
+      },
+      {
+        "speaker": "Mme Roche",
+        "fr": "Bonjour, Sara ! Pas de problème. Je peux vous aider ?",
+        "tr": "Hej, Sara! Inga problem. Kan jag hjälpa till?"
+      },
+      {
+        "speaker": "Sara",
+        "fr": "Oui. Mon nom n'est pas encore sur la boîte aux lettres. Qu'est-ce que je dois faire ?",
+        "tr": "Ja. Mitt namn står inte på brevlådan än. Vad ska jag göra?"
+      },
+      {
+        "speaker": "Mme Roche",
+        "fr": "Il faut demander une étiquette au syndic. Je peux leur envoyer un message, si vous voulez.",
+        "tr": "Du måste be förvaltaren om en namnskylt. Jag kan skicka ett meddelande till dem, om du vill."
+      },
+      {
+        "speaker": "Sara",
+        "fr": "Ce serait très gentil, merci. Autre chose : l'ascenseur est en panne depuis hier.",
+        "tr": "Det vore väldigt snällt, tack. En sak till: hissen har varit trasig sedan i går."
+      },
+      {
+        "speaker": "Mme Roche",
+        "fr": "Oui, je sais. Le technicien va venir demain matin.",
+        "tr": "Ja, jag vet. Teknikern kommer i morgon bitti."
+      },
+      {
+        "speaker": "Sara",
+        "fr": "D'accord. Et les charges, je les paie quand ?",
+        "tr": "Okej. Och avgifterna, när betalar jag dem?"
+      },
+      {
+        "speaker": "Mme Roche",
+        "fr": "Tous les trois mois. Vous allez recevoir un appel de fonds du syndic.",
+        "tr": "Var tredje månad. Du kommer att få en betalningsavi (appel de fonds) från förvaltaren."
+      },
+      {
+        "speaker": "Sara",
+        "fr": "Parfait. Merci beaucoup pour votre aide !",
+        "tr": "Perfekt. Tack så mycket för hjälpen!"
+      },
+      {
+        "speaker": "Mme Roche",
+        "fr": "Je vous en prie. Bonne installation !",
+        "tr": "Varsågod. Lycka till med inflyttningen!"
+      }
     ]
   },
-  numbers: [
-    { n: 100, fr: "cent", hint: "sahn" },
-    { n: 150, fr: "cent cinquante", hint: "sahn san-KAHNT" },
-    { n: 200, fr: "deux cents", hint: "duh sahn" },
-    { n: 250, fr: "deux cent cinquante", hint: "duh sahn san-KAHNT" },
-    { n: 300, fr: "trois cents", hint: "trwah sahn" },
-    { n: 480, fr: "quatre cent quatre-vingts", hint: "KAT-ruh sahn kat-ruh-VAN" },
-    { n: 500, fr: "cinq cents", hint: "sank sahn" },
-    { n: 670, fr: "six cent soixante-dix", hint: "see sahn swah-sahnt-DEES" },
-    { n: 790, fr: "sept cent quatre-vingt-dix", hint: "set sahn kat-ruh-van-DEES" },
-    { n: 999, fr: "neuf cent quatre-vingt-dix-neuf", hint: "nuhf sahn kat-ruh-van-dees-NUHF" },
-    { n: 1000, fr: "mille", hint: "meel" },
-    { n: 1250, fr: "mille deux cent cinquante", hint: "meel duh sahn san-KAHNT" }
+  "numbers": [
+    {
+      "n": 100,
+      "fr": "cent",
+      "hint": "sahn"
+    },
+    {
+      "n": 150,
+      "fr": "cent cinquante",
+      "hint": "sahn san-KAHNT"
+    },
+    {
+      "n": 200,
+      "fr": "deux cents",
+      "hint": "duh sahn"
+    },
+    {
+      "n": 250,
+      "fr": "deux cent cinquante",
+      "hint": "duh sahn san-KAHNT"
+    },
+    {
+      "n": 300,
+      "fr": "trois cents",
+      "hint": "trwah sahn"
+    },
+    {
+      "n": 480,
+      "fr": "quatre cent quatre-vingts",
+      "hint": "KAT-ruh sahn kat-ruh-VAN"
+    },
+    {
+      "n": 500,
+      "fr": "cinq cents",
+      "hint": "sank sahn"
+    },
+    {
+      "n": 670,
+      "fr": "six cent soixante-dix",
+      "hint": "see sahn swah-sahnt-DEES"
+    },
+    {
+      "n": 790,
+      "fr": "sept cent quatre-vingt-dix",
+      "hint": "set sahn kat-ruh-van-DEES"
+    },
+    {
+      "n": 999,
+      "fr": "neuf cent quatre-vingt-dix-neuf",
+      "hint": "nuhf sahn kat-ruh-van-dees-NUHF"
+    },
+    {
+      "n": 1000,
+      "fr": "mille",
+      "hint": "meel"
+    },
+    {
+      "n": 1250,
+      "fr": "mille deux cent cinquante",
+      "hint": "meel duh sahn san-KAHNT"
+    }
   ],
-  quiz: [
-    { type: "vocab", q: "What is « la boîte aux lettres »?", options: ["the mailbox", "the letter", "the key box", "the post office"], answer: 0,
-      explain: "« La boîte aux lettres » is the mailbox. The post office is « la poste »." },
-    { type: "vocab", q: "Which word means \"lift / elevator\"?", options: ["l'étage", "l'ascenseur", "l'escalier", "le carton"], answer: 1,
-      explain: "« L'ascenseur » = lift. « L'étage » = floor, « l'escalier » = stairs." },
-    { type: "vocab", q: "In a residence, « les charges » are…", options: ["the service charges for the building", "the keys", "the moving boxes", "the neighbours"], answer: 0,
-      explain: "« Les charges » are the shared costs of the building (cleaning, lift, caretaker, water…)." },
-    { type: "vocab", q: "Complete the sentence:", fr: "Le ___ envoie les appels de fonds aux propriétaires.", options: ["syndic", "gardien", "quartier", "carton"], answer: 0,
-      explain: "The « syndic » manages the copropriété and sends the payment requests (appels de fonds)." },
-    { type: "grammar", q: "Choose the right auxiliary:", fr: "Les déménageurs ___ arrivés à huit heures.", options: ["ont", "sont", "avez", "est"], answer: 1,
-      explain: "« Arriver » uses « être » in the passé composé. Plural subject → « sont arrivés »." },
-    { type: "grammar", q: "Choose the right auxiliary:", fr: "Hier, j'___ emménagé dans mon appartement.", options: ["ai", "suis", "es", "a"], answer: 0,
-      explain: "« Emménager » uses « avoir »: j'ai emménagé." },
-    { type: "grammar", q: "Choose the correct form:", fr: "Sara s'est ___ dans le quartier.", options: ["promené", "promenée", "promener", "promenés"], answer: 1,
-      explain: "Reflexive verbs use « être », so the participle agrees: Sara (feminine) → promenée." },
-    { type: "grammar", q: "Passé composé of « prendre »:", fr: "Nous ___ l'ascenseur.", options: ["avons pris", "sommes pris", "avons prendu", "avons prené"], answer: 0,
-      explain: "« Prendre » has an irregular participle: pris → nous avons pris." },
-    { type: "grammar", q: "Choose the correct form:", fr: "Ils ___ partis à midi.", options: ["ont", "sont", "a", "est"], answer: 1,
-      explain: "« Partir » is a movement verb → « être »: ils sont partis." },
-    { type: "reading", q: "Where did Sara live before Antibes?", options: ["Lyon", "Nice", "Paris", "Marseille"], answer: 0,
-      explain: "Line 1: « Sara a quitté Lyon pour s'installer à Antibes. »" },
-    { type: "reading", q: "On which floor is Sara's apartment?", options: ["premier étage", "deuxième étage", "troisième étage", "rez-de-chaussée"], answer: 1,
-      explain: "Line 4: « au deuxième étage » (second floor)." },
-    { type: "reading", q: "What did the caretaker give Sara?", options: ["two keys and a parking badge", "a letter from the syndic", "forty boxes", "a map of the neighbourhood"], answer: 0,
-      explain: "Line 7: « deux clés et un badge pour le parking »." },
-    { type: "conversation", q: "What is the problem with the lift?", options: ["It has been out of order since yesterday", "It is too small", "It needs a badge", "It is very old"], answer: 0,
-      explain: "« L'ascenseur est en panne depuis hier » = out of order since yesterday." },
-    { type: "conversation", q: "How often does Sara pay the service charges?", options: ["every month", "every three months", "every year", "twice a year"], answer: 1,
-      explain: "« Tous les trois mois » = every three months." },
-    { type: "numbers", q: "Listen and choose the number you hear.", fr: "quatre cent quatre-vingts", listen: true, options: ["480", "420", "4080", "380"], answer: 0,
-      explain: "quatre cents (400) + quatre-vingts (4 × 20 = 80) = 480." },
-    { type: "numbers", q: "How do you write 200 in French?", options: ["deux cents", "deux cent", "deux-cents", "deuxcent"], answer: 0,
-      explain: "« Cents » takes an -s when nothing follows it: deux cents. But: deux cent cinquante (250)." },
-    { type: "numbers", q: "Listen and choose the number you hear.", fr: "sept cent quatre-vingt-dix", listen: true, options: ["790", "710", "770", "799"], answer: 0,
-      explain: "sept cents (700) + quatre-vingt-dix (4 × 20 + 10 = 90) = 790." }
+  "quiz": [
+    {
+      "type": "vocab",
+      "q": "Vad betyder « la boîte aux lettres » ?",
+      "options": [
+        "brevlådan",
+        "brevet",
+        "nyckelskåpet",
+        "posten"
+      ],
+      "answer": 0,
+      "explain": "« La boîte aux lettres » = brevlådan. Posten heter « la poste »."
+    },
+    {
+      "type": "vocab",
+      "q": "Vilket ord betyder ”hiss” ?",
+      "options": [
+        "l'étage",
+        "l'ascenseur",
+        "l'escalier",
+        "le carton"
+      ],
+      "answer": 1,
+      "explain": "« L'ascenseur » = hiss. « L'étage » = våning, « l'escalier » = trappa."
+    },
+    {
+      "type": "vocab",
+      "q": "I ett bostadshus är « les charges »…",
+      "options": [
+        "de gemensamma avgifterna",
+        "nycklarna",
+        "flyttkartongerna",
+        "grannarna"
+      ],
+      "answer": 0,
+      "explain": "« Les charges » är husets gemensamma kostnader (städning, hiss, fastighetsskötare, vatten…)."
+    },
+    {
+      "type": "vocab",
+      "q": "Fyll i meningen :",
+      "fr": "Le ___ envoie les appels de fonds aux propriétaires.",
+      "options": [
+        "syndic",
+        "gardien",
+        "quartier",
+        "carton"
+      ],
+      "answer": 0,
+      "explain": "« Le syndic » förvaltar fastigheten och skickar betalningsavierna (appels de fonds)."
+    },
+    {
+      "type": "grammar",
+      "q": "Välj rätt hjälpverb :",
+      "fr": "Les déménageurs ___ arrivés à huit heures.",
+      "options": [
+        "ont",
+        "sont",
+        "avez",
+        "est"
+      ],
+      "answer": 1,
+      "explain": "« Arriver » tar « être ». Subjektet är plural → « sont arrivés »."
+    },
+    {
+      "type": "grammar",
+      "q": "Välj rätt hjälpverb :",
+      "fr": "Hier, j'___ emménagé dans mon appartement.",
+      "options": [
+        "ai",
+        "suis",
+        "es",
+        "a"
+      ],
+      "answer": 0,
+      "explain": "« Emménager » tar « avoir » : j'ai emménagé."
+    },
+    {
+      "type": "grammar",
+      "q": "Välj rätt form :",
+      "fr": "Sara s'est ___ dans le quartier.",
+      "options": [
+        "promené",
+        "promenée",
+        "promener",
+        "promenés"
+      ],
+      "answer": 1,
+      "explain": "Reflexiva verb tar « être », så participet böjs : Sara (femininum) → promenée."
+    },
+    {
+      "type": "grammar",
+      "q": "Passé composé av « prendre » :",
+      "fr": "Nous ___ l'ascenseur.",
+      "options": [
+        "avons pris",
+        "sommes pris",
+        "avons prendu",
+        "avons prené"
+      ],
+      "answer": 0,
+      "explain": "« Prendre » har ett oregelbundet particip : pris → nous avons pris."
+    },
+    {
+      "type": "grammar",
+      "q": "Välj rätt form :",
+      "fr": "Ils ___ partis à midi.",
+      "options": [
+        "ont",
+        "sont",
+        "a",
+        "est"
+      ],
+      "answer": 1,
+      "explain": "« Partir » är ett rörelseverb → « être » : ils sont partis."
+    },
+    {
+      "type": "reading",
+      "q": "Var bodde Sara innan hon flyttade till Antibes ?",
+      "options": [
+        "Lyon",
+        "Nice",
+        "Paris",
+        "Marseille"
+      ],
+      "answer": 0,
+      "explain": "Rad 1 : « Sara a quitté Lyon pour s'installer à Antibes. »"
+    },
+    {
+      "type": "reading",
+      "q": "På vilken våning ligger Saras lägenhet ?",
+      "options": [
+        "premier étage",
+        "deuxième étage",
+        "troisième étage",
+        "rez-de-chaussée"
+      ],
+      "answer": 1,
+      "explain": "Rad 4 : « au deuxième étage » (andra våningen)."
+    },
+    {
+      "type": "reading",
+      "q": "Vad gav fastighetsskötaren till Sara ?",
+      "options": [
+        "två nycklar och en parkeringsbricka",
+        "ett brev från förvaltaren",
+        "fyrtio kartonger",
+        "en karta över kvarteret"
+      ],
+      "answer": 0,
+      "explain": "Rad 7 : « deux clés et un badge pour le parking »."
+    },
+    {
+      "type": "conversation",
+      "q": "Vad är problemet med hissen ?",
+      "options": [
+        "Den har varit trasig sedan i går",
+        "Den är för liten",
+        "Man behöver en bricka",
+        "Den är mycket gammal"
+      ],
+      "answer": 0,
+      "explain": "« L'ascenseur est en panne depuis hier » = hissen har varit trasig sedan i går."
+    },
+    {
+      "type": "conversation",
+      "q": "Hur ofta betalar Sara avgifterna ?",
+      "options": [
+        "varje månad",
+        "var tredje månad",
+        "varje år",
+        "två gånger om året"
+      ],
+      "answer": 1,
+      "explain": "« Tous les trois mois » = var tredje månad."
+    },
+    {
+      "type": "numbers",
+      "q": "Lyssna och välj talet du hör.",
+      "fr": "quatre cent quatre-vingts",
+      "listen": true,
+      "options": [
+        "480",
+        "420",
+        "4080",
+        "380"
+      ],
+      "answer": 0,
+      "explain": "quatre cents (400) + quatre-vingts (4 × 20 = 80) = 480."
+    },
+    {
+      "type": "numbers",
+      "q": "Hur skriver man 200 på franska ?",
+      "options": [
+        "deux cents",
+        "deux cent",
+        "deux-cents",
+        "deuxcent"
+      ],
+      "answer": 0,
+      "explain": "« Cents » får -s när inget tal följer efter : deux cents. Men : deux cent cinquante (250)."
+    },
+    {
+      "type": "numbers",
+      "q": "Lyssna och välj talet du hör.",
+      "fr": "sept cent quatre-vingt-dix",
+      "listen": true,
+      "options": [
+        "790",
+        "710",
+        "770",
+        "799"
+      ],
+      "answer": 0,
+      "explain": "sept cents (700) + quatre-vingt-dix (4 × 20 + 10 = 90) = 790."
+    }
   ]
 }/*LESSON_DATA_END*/;
 </script>

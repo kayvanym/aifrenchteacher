@@ -1,8 +1,117 @@
 /* Shared logic for all lesson pages. Change here → all pages change.
-   Each page defines `const LESSON = {...}` and then loads this file. */
-document.body.insertAdjacentHTML("afterbegin", "<header class=\"top\">\n  <div class=\"wrap\">\n    <a href=\"../index.html\">\u2190 Toutes les le\u00e7ons / All lessons</a>\n    <h1 id=\"title\">\u2026</h1>\n    <div class=\"sub\" id=\"subtitle\"></div>\n    <div class=\"settings\">\n      <label>Translation:\n        <select id=\"lang\">\n          <option value=\"en\">English</option>\n          <option value=\"sv\">Svenska</option>\n          <option value=\"fa\">\u0641\u0627\u0631\u0633\u06cc</option>\n          <option value=\"none\">\u2014 none \u2014</option>\n        </select>\n      </label>\n      <label>Speed \ud83d\udd0a <input type=\"range\" id=\"rate\" min=\"0.5\" max=\"1.1\" step=\"0.05\" value=\"0.85\"></label>\n      <span id=\"voice-info\" class=\"muted\" style=\"color:#dbe4ff\"></span>\n    </div>\n  </div>\n</header>\n\n<nav class=\"sections\"><div class=\"wrap\">\n  <a href=\"#words\">\ud83d\udcda Mots</a>\n  <a href=\"#reading\">\ud83d\udcd6 Lecture</a>\n  <a href=\"#conversation\">\ud83d\udcac Conversation</a>\n  <a href=\"#numbers\">\ud83d\udd22 Nombres</a>\n  <a href=\"#drill\">\ud83c\udccf Entra\u00eenement</a>\n  <a href=\"#quiz\">\u2705 Quiz du jour</a>\n</div></nav>\n\n<main class=\"wrap\">\n\n  <section id=\"words\">\n    <h2>\ud83d\udcda Les mots du jour</h2>\n    <p class=\"hint\">Click \ud83d\udd0a to listen. Turn on \"Test myself\" to hide the translations \u2014 click a card to check.</p>\n    <label class=\"toggle\"><input type=\"checkbox\" id=\"hide-tr\"> Test myself (hide translations)</label>\n    <div class=\"grid\" id=\"word-grid\"></div>\n  </section>\n\n  <section id=\"tip-section\" class=\"tip\" hidden>\n    <h2>\ud83d\udca1 Astuce</h2>\n    <div id=\"tip\"></div>\n  </section>\n\n  <section id=\"reading\">\n    <h2 id=\"reading-title\">\ud83d\udcd6 Lecture</h2>\n    <p class=\"hint\">Read each line aloud first, then listen and compare. Change the translation language at the top.</p>\n    <button class=\"btn ghost\" type=\"button\" id=\"read-all\">\ud83d\udd0a Listen to the whole text</button>\n    <div id=\"reading-lines\" style=\"margin-top:10px\"></div>\n  </section>\n\n  <section id=\"conversation\">\n    <h2 id=\"conv-title\">\ud83d\udcac Conversation</h2>\n    <p class=\"hint\" id=\"conv-situation\"></p>\n    <button class=\"btn ghost\" type=\"button\" id=\"conv-all\">\ud83d\udd0a Listen to the conversation</button>\n    <div id=\"conv-lines\" style=\"margin-top:10px\"></div>\n  </section>\n\n  <section id=\"numbers\">\n    <h2>\ud83d\udd22 Les nombres</h2>\n    <p class=\"hint\">Click a number to hear it. Then try the listening game.</p>\n    <div class=\"numgrid\" id=\"num-grid\"></div>\n    <div class=\"quizbox\">\n      <strong>\ud83c\udfa7 Listening game:</strong> press play, listen, and choose the number you hear.\n      <div style=\"margin-top:10px\"><button class=\"btn\" type=\"button\" id=\"num-play\">\u25b6 Play a number</button>\n        <button class=\"btn ghost\" type=\"button\" id=\"num-repeat\" hidden>\ud83d\udd01 Repeat</button></div>\n      <div class=\"opts\" id=\"num-opts\"></div>\n      <div class=\"feedback\" id=\"num-feedback\"></div>\n      <div class=\"muted\" id=\"num-score\">Score: 0 / 0</div>\n    </div>\n  </section>\n\n  <section id=\"drill\">\n    <h2>\ud83c\udccf Entra\u00eenement des mots</h2>\n    <p class=\"hint\">Quick word drill: choose the right translation (in the language selected at the top).</p>\n    <div id=\"quiz-area\"></div>\n  </section>\n\n  <section id=\"quiz\">\n    <h2>\u2705 Quiz du jour</h2>\n    <p class=\"hint\">Mixed questions on today's words, grammar, reading text, conversation and numbers. Read the explanation after each answer.</p>\n    <div class=\"progress\"><div id=\"dq-bar\"></div></div>\n    <div id=\"dq-area\"></div>\n    <div class=\"quizbox\" style=\"margin-top:18px\">\n      <strong>\ud83d\udccb Send your results to your teacher</strong>\n      <p class=\"muted\" style=\"margin:4px 0 8px\">When you are done, press <b>Send to my teacher</b>. GitHub opens with your results already written \u2014 just press <b>Submit</b> (or <b>Create</b>). Your teacher reads it the next morning.</p>\n      <textarea id=\"comment\" placeholder=\"Optional comment for your teacher (e.g. too easy, more words about the apartment\u2026)\" style=\"min-height:50px;font-family:inherit\"></textarea>\n      <div style=\"display:flex;gap:8px;flex-wrap:wrap;margin-top:8px\"><button class=\"btn\" type=\"button\" id=\"send-results\">\ud83d\udce8 Send to my teacher</button>\n      <button class=\"btn ghost\" type=\"button\" id=\"copy-results\">Copy my results</button></div>\n      <textarea id=\"results-text\" readonly hidden></textarea>\n    </div>\n  </section>\n\n</main>\n<footer id=\"footer\"></footer>");
-/* ============================ PAGE LOGIC ============================ */
+   Each page defines `const LESSON = {...}` and then loads this file.
+
+   Help language: new pages set LESSON.lang ("en" | "sv" | "fa") and give ONE translation
+   per item in the field `tr`. Older pages that have en/sv/fa on every item still work:
+   they show a language selector instead. */
+
+document.body.insertAdjacentHTML("afterbegin", `
+<header class="top">
+  <div class="wrap">
+    <a href="../index.html">← Toutes les leçons / All lessons</a>
+    <h1 id="title">…</h1>
+    <div class="sub" id="subtitle"></div>
+    <div class="settings">
+      <label id="lang-wrap" hidden>Help language:
+        <select id="lang">
+          <option value="en">English</option>
+          <option value="sv">Svenska</option>
+          <option value="fa">فارسی</option>
+        </select>
+      </label>
+      <span id="lang-badge" class="lang-badge" hidden></span>
+      <label><input type="checkbox" id="show-tr" checked> Show translations</label>
+      <label>Speed 🔊 <input type="range" id="rate" min="0.5" max="1.1" step="0.05" value="0.85"></label>
+      <span id="voice-info" class="muted" style="color:#dbe4ff"></span>
+    </div>
+  </div>
+</header>
+
+<nav class="sections"><div class="wrap">
+  <a href="#words">📚 Mots</a>
+  <a href="#grammar" id="nav-grammar">📐 Grammaire</a>
+  <a href="#reading">📖 Lecture</a>
+  <a href="#conversation">💬 Conversation</a>
+  <a href="#numbers">🔢 Nombres</a>
+  <a href="#drill">🃏 Entraînement</a>
+  <a href="#quiz">✅ Quiz du jour</a>
+</div></nav>
+
+<main class="wrap">
+
+  <section id="words">
+    <h2>📚 Les mots du jour</h2>
+    <p class="hint">Click 🔊 to listen. Turn on "Test myself" to hide the translations — click a card to check.</p>
+    <label class="toggle"><input type="checkbox" id="hide-tr"> Test myself (hide translations)</label>
+    <div class="grid" id="word-grid"></div>
+  </section>
+
+  <section id="grammar" class="grammar" hidden>
+    <h2>📐 Grammaire</h2>
+    <div id="grammar-body"></div>
+  </section>
+
+  <section id="tip-section" class="tip" hidden>
+    <h2>💡 Astuce</h2>
+    <div id="tip"></div>
+  </section>
+
+  <section id="reading">
+    <h2 id="reading-title">📖 Lecture</h2>
+    <p class="hint">Read each line aloud first, then listen and compare.</p>
+    <button class="btn ghost" type="button" id="read-all">🔊 Listen to the whole text</button>
+    <div id="reading-lines" style="margin-top:10px"></div>
+  </section>
+
+  <section id="conversation">
+    <h2 id="conv-title">💬 Conversation</h2>
+    <p class="hint" id="conv-situation" dir="auto"></p>
+    <button class="btn ghost" type="button" id="conv-all">🔊 Listen to the conversation</button>
+    <div id="conv-lines" style="margin-top:10px"></div>
+  </section>
+
+  <section id="numbers">
+    <h2>🔢 Les nombres</h2>
+    <p class="hint">Click a number to hear it. Then try the listening game.</p>
+    <div class="numgrid" id="num-grid"></div>
+    <div class="quizbox">
+      <strong>🎧 Listening game:</strong> press play, listen, and choose the number you hear.
+      <div style="margin-top:10px"><button class="btn" type="button" id="num-play">▶ Play a number</button>
+        <button class="btn ghost" type="button" id="num-repeat" hidden>🔁 Repeat</button></div>
+      <div class="opts" id="num-opts"></div>
+      <div class="feedback" id="num-feedback"></div>
+      <div class="muted" id="num-score">Score: 0 / 0</div>
+    </div>
+  </section>
+
+  <section id="drill">
+    <h2>🃏 Entraînement des mots</h2>
+    <p class="hint">Quick word drill: choose the right translation.</p>
+    <div id="quiz-area"></div>
+  </section>
+
+  <section id="quiz">
+    <h2>✅ Quiz du jour</h2>
+    <p class="hint">Mixed questions on today's words, grammar, reading text, conversation and numbers. Read the explanation after each answer.</p>
+    <div class="progress"><div id="dq-bar"></div></div>
+    <div id="dq-area"></div>
+    <div class="quizbox" style="margin-top:18px">
+      <strong>📋 Send your results to your teacher</strong>
+      <p class="muted" style="margin:4px 0 8px">When you are done, press <b>Send to my teacher</b>. GitHub opens with your results already written — just press <b>Submit</b> (or <b>Create</b>). Your teacher reads it the next morning.</p>
+      <textarea id="comment" placeholder="Optional comment for your teacher (e.g. too easy, more words about the apartment…)" style="min-height:50px;font-family:inherit"></textarea>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <button class="btn" type="button" id="send-results">📨 Send to my teacher</button>
+        <button class="btn ghost" type="button" id="copy-results">Copy my results</button>
+      </div>
+      <textarea id="results-text" readonly hidden></textarea>
+    </div>
+  </section>
+
+</main>
+<footer id="footer"></footer>`);
+
 (function(){
+  const L = LESSON;
   const $ = (s) => document.querySelector(s);
   function el(tag, attrs, ...kids){
     const e = document.createElement(tag);
@@ -24,6 +133,31 @@ document.body.insertAdjacentHTML("afterbegin", "<header class=\"top\">\n  <div c
     set(k, v){ try { localStorage.setItem(k, v); } catch(e){} }
   };
 
+  /* ---------- help language ---------- */
+  const LANG_NAMES = { en: "English", sv: "Svenska", fa: "فارسی" };
+  const firstWord = (L.words && L.words[0]) || {};
+  const multi = firstWord.tr === undefined;            // old page: en/sv/fa on every item
+  let lang = multi ? (store.get("fr-lang", L.lang || "en")) : (L.lang || "en");
+  if (!LANG_NAMES[lang]) lang = "en";
+  let showTr = store.get("fr-show-tr", "1") === "1";
+  /* translation of an item: new pages use `tr`, old pages use en/sv/fa */
+  const getTr = (o) => (o == null ? "" : (o.tr !== undefined ? o.tr : (o[lang] !== undefined ? o[lang] : o.en)));
+  /* text that may be a plain string or an {en,sv,fa} object */
+  const tx = (v) => (v == null ? "" : (typeof v === "object" ? (v[lang] !== undefined ? v[lang] : v.en) : v));
+  /* an element for help-language text (handles right-to-left for Persian) */
+  const trEl = (tag, cls, text) => el(tag, { class: cls, dir: "auto", lang: lang }, text);
+
+  if (multi){
+    $("#lang-wrap").hidden = false;
+    $("#lang").value = lang;
+    $("#lang").addEventListener("change", (e) => { lang = e.target.value; store.set("fr-lang", lang); renderAll(); });
+  } else {
+    $("#lang-badge").hidden = false;
+    $("#lang-badge").textContent = "Help language: " + LANG_NAMES[lang];
+  }
+  $("#show-tr").checked = showTr;
+  $("#show-tr").addEventListener("change", (e) => { showTr = e.target.checked; store.set("fr-show-tr", showTr ? "1" : "0"); renderReading(); renderConversation(); renderGrammar(); });
+
   /* ---------- speech ---------- */
   const hasSpeech = "speechSynthesis" in window;
   let frVoice = null;
@@ -35,57 +169,35 @@ document.body.insertAdjacentHTML("afterbegin", "<header class=\"top\">\n  <div c
   }
   if (hasSpeech){ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
   else { $("#voice-info").textContent = "Audio not supported in this browser."; }
-  function say(text){
-    if (!hasSpeech) return;
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text.replace(/[«»]/g, ""));
-    u.lang = "fr-FR"; if (frVoice) u.voice = frVoice; u.rate = rate;
-    speechSynthesis.speak(u);
-  }
-  function sayList(texts){
-    if (!hasSpeech) return;
-    speechSynthesis.cancel();
-    texts.forEach(t => { const u = new SpeechSynthesisUtterance(t.replace(/[«»]/g, "")); u.lang = "fr-FR"; if (frVoice) u.voice = frVoice; u.rate = rate; speechSynthesis.speak(u); });
-  }
+  const clean = (t) => String(t).replace(/[«»]/g, "").replace(/\((?:e|s|es|e\)\(s|m|f)\)/g, "").replace(/___/g, "…");
+  function utter(t){ const u = new SpeechSynthesisUtterance(clean(t)); u.lang = "fr-FR"; if (frVoice) u.voice = frVoice; u.rate = rate; return u; }
+  function say(text){ if (!hasSpeech) return; speechSynthesis.cancel(); speechSynthesis.speak(utter(text)); }
+  function sayList(texts){ if (!hasSpeech) return; speechSynthesis.cancel(); texts.forEach(t => speechSynthesis.speak(utter(t))); }
   const speakBtn = (text) => el("button", { class: "speak", type: "button", title: "Listen", "aria-label": "Listen", onclick: (ev) => { ev.stopPropagation(); say(text); } }, "🔊");
 
   const rateInput = $("#rate");
   rateInput.value = rate;
   rateInput.addEventListener("input", () => { rate = parseFloat(rateInput.value); store.set("fr-rate", rate); });
 
-  /* ---------- language ---------- */
-  let lang = store.get("fr-lang", "en");
-  const langSel = $("#lang");
-  langSel.value = lang;
-  langSel.addEventListener("change", () => { lang = langSel.value; store.set("fr-lang", lang); renderReading(); renderConversation(); renderQuiz(); });
-  const quizLang = () => (lang === "none" ? "en" : lang);
-  function trNode(o){
-    if (lang === "none") return null;
-    return el("div", { class: "trline" + (lang === "fa" ? " fa" : ""), dir: lang === "fa" ? "rtl" : "ltr", lang: lang }, o[lang]);
-  }
-
   /* ---------- header ---------- */
-  const L = LESSON;
   document.title = `Jour ${L.day} — ${L.theme.fr}`;
   $("#title").textContent = `Jour ${L.day} · ${L.theme.fr}`;
-  $("#subtitle").textContent = `${L.theme.en} — Week ${L.week} — ${new Date(L.date + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}`;
+  const themeTr = L.theme.tr !== undefined ? L.theme.tr : (L.theme[lang] || L.theme.en || "");
+  $("#subtitle").textContent = `${themeTr} — Week ${L.week} — ${new Date(L.date + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}`;
 
   /* ---------- words ---------- */
   function renderWords(){
     const grid = $("#word-grid");
     grid.innerHTML = "";
     L.words.forEach(w => {
-      const tr = el("div", { class: "tr", onclick: (ev) => ev.currentTarget.classList.toggle("revealed") },
-        el("div", {}, el("b", {}, "EN"), el("span", {}, w.en)),
-        el("div", {}, el("b", {}, "SV"), el("span", {}, w.sv)),
-        el("div", { class: "fa", lang: "fa" }, el("span", {}, w.fa), el("b", {}, "FA")));
+      const exTr = w.example_tr !== undefined ? w.example_tr : w.example_en;
       grid.append(el("div", { class: "card" + (w.review ? " review" : "") },
         w.review ? el("span", { class: "badge" }, "Révision") : null,
         el("div", { class: "fr-row" }, speakBtn(w.fr), el("span", { class: "fr-word", lang: "fr" }, w.fr)),
-        tr,
+        el("div", { class: "tr", onclick: (ev) => ev.currentTarget.classList.toggle("revealed") }, trEl("div", "tr-main", getTr(w))),
         w.example ? el("div", { class: "ex" },
           el("div", { class: "fr-row", style: "margin:0" }, speakBtn(w.example), el("span", { lang: "fr" }, w.example)),
-          w.example_en ? el("div", { class: "muted" }, w.example_en) : null) : null));
+          exTr ? trEl("div", "muted", exTr) : null) : null));
     });
   }
   $("#hide-tr").addEventListener("change", (e) => {
@@ -93,14 +205,53 @@ document.body.insertAdjacentHTML("afterbegin", "<header class=\"top\">\n  <div c
     document.querySelectorAll("#word-grid .tr").forEach(t => t.classList.remove("revealed"));
   });
 
-  /* ---------- tip ---------- */
-  if (L.tip){
+  /* ---------- grammar ----------
+     grammar: { title, intro, rules: [..], table?: {caption?, headers, rows}, examples: [{fr, tr, note?}],
+                watch_out?: {wrong, right, why} }  — texts in the help language (or {en,sv,fa}) */
+  function renderGrammar(){
+    const g = L.grammar;
+    if (!g){ $("#grammar").hidden = true; $("#nav-grammar").hidden = !L.tip; if (L.tip) $("#nav-grammar").href = "#tip-section"; return; }
+    $("#grammar").hidden = false;
+    const box = $("#grammar-body");
+    box.innerHTML = "";
+    box.append(el("h3", { class: "g-title", lang: "fr" }, g.title));
+    if (g.intro) box.append(trEl("p", "g-intro", tx(g.intro)));
+    if (g.rules && g.rules.length){
+      box.append(el("ol", { class: "g-rules", dir: "auto" }, g.rules.map(r => trEl("li", "", tx(r)))));
+    }
+    if (g.table && g.table.rows){
+      const t = g.table;
+      box.append(el("div", { class: "g-table-wrap" },
+        el("table", { class: "g-table", lang: "fr" },
+          t.caption ? trEl("caption", "", tx(t.caption)) : null,
+          t.headers ? el("thead", {}, el("tr", {}, t.headers.map(h => el("th", {}, h)))) : null,
+          el("tbody", {}, t.rows.map(r => el("tr", {}, r.map((c, k) => el(k === 0 ? "th" : "td", {}, c))))))));
+    }
+    if (g.examples && g.examples.length){
+      box.append(el("h4", {}, "Exemples"),
+        el("div", { class: "g-examples" }, g.examples.map(x => el("div", { class: "g-ex" },
+          el("div", { class: "fr-line" }, el("span", { lang: "fr" }, x.fr), speakBtn(x.fr)),
+          showTr && getTr(x) ? trEl("div", "trline", getTr(x)) : null,
+          x.note ? trEl("div", "g-note", tx(x.note)) : null))));
+    }
+    if (g.watch_out){
+      const w = g.watch_out;
+      box.append(el("div", { class: "g-watch" },
+        el("div", { class: "g-watch-title" }, "⚠️ Attention !"),
+        el("div", { class: "g-wrong", lang: "fr" }, "✘ ", el("s", {}, w.wrong)),
+        el("div", { class: "g-right", lang: "fr" }, "✔ ", w.right, " ", speakBtn(w.right)),
+        w.why ? trEl("div", "g-why", tx(w.why)) : null));
+    }
+  }
+
+  /* ---------- old-style tip (older pages only) ---------- */
+  function renderTip(){
+    if (!L.tip || L.grammar){ $("#tip-section").hidden = true; return; }
     $("#tip-section").hidden = false;
-    $("#tip").append(
-      L.tip.title ? el("p", {}, el("strong", { lang: "fr" }, L.tip.title)) : null,
-      el("p", {}, el("b", {}, "EN: "), L.tip.en),
-      el("p", {}, el("b", {}, "SV: "), L.tip.sv),
-      el("p", { class: "fa", dir: "rtl", lang: "fa" }, L.tip.fa));
+    const t = $("#tip");
+    t.innerHTML = "";
+    t.append(L.tip.title ? el("p", {}, el("strong", { lang: "fr" }, L.tip.title)) : null,
+      trEl("p", "", tx(L.tip)));
   }
 
   /* ---------- reading ---------- */
@@ -113,7 +264,7 @@ document.body.insertAdjacentHTML("afterbegin", "<header class=\"top\">\n  <div c
         el("span", { class: "num" }, i + 1),
         el("div", { class: "line-body" },
           el("div", { class: "fr-line" }, el("span", { lang: "fr" }, l.fr), speakBtn(l.fr)),
-          trNode(l))));
+          showTr ? trEl("div", "trline", getTr(l)) : null)));
     });
   }
   $("#read-all").addEventListener("click", () => sayList(L.reading.lines.map(l => l.fr)));
@@ -121,7 +272,7 @@ document.body.insertAdjacentHTML("afterbegin", "<header class=\"top\">\n  <div c
   /* ---------- conversation ---------- */
   function renderConversation(){
     $("#conv-title").textContent = "💬 Conversation : " + L.conversation.title;
-    $("#conv-situation").textContent = L.conversation.situation || "";
+    $("#conv-situation").textContent = tx(L.conversation.situation);
     const first = L.conversation.lines[0] && L.conversation.lines[0].speaker;
     const box = $("#conv-lines");
     box.innerHTML = "";
@@ -130,7 +281,7 @@ document.body.insertAdjacentHTML("afterbegin", "<header class=\"top\">\n  <div c
         el("div", { class: "bubble" },
           el("div", { class: "who" }, l.speaker),
           el("div", { class: "fr-line" }, el("span", { lang: "fr" }, l.fr), speakBtn(l.fr)),
-          trNode(l))));
+          showTr ? trEl("div", "trline", getTr(l)) : null)));
     });
   }
   $("#conv-all").addEventListener("click", () => sayList(L.conversation.lines.map(l => l.fr)));
@@ -171,47 +322,46 @@ document.body.insertAdjacentHTML("afterbegin", "<header class=\"top\">\n  <div c
       btn.classList.add("bad");
       opts.forEach(b => { if (Number(b.textContent) === currentNum.n) b.classList.add("ok"); });
       if (!numStats.missed.includes(currentNum.n)) numStats.missed.push(currentNum.n);
-      fb.textContent = `✘ It was ${currentNum.n} = ${currentNum.fr}`; fb.className = "feedback bad";
+      fb.textContent = `✘ ${currentNum.n} = ${currentNum.fr}`; fb.className = "feedback bad";
     }
     $("#num-score").textContent = `Score: ${numStats.correct} / ${numStats.asked}`;
   }
   $("#num-play").addEventListener("click", playNumber);
   $("#num-repeat").addEventListener("click", () => currentNum && say(currentNum.fr));
 
-  /* ---------- word quiz ---------- */
-  const quiz = { order: shuffle(L.words), i: 0, correct: 0, missed: [], answered: false, done: false };
-  function renderQuiz(){
+  /* ---------- word drill ---------- */
+  const quiz = { order: shuffle(L.words), i: 0, correct: 0, missed: [], done: false };
+  function renderDrill(){
     const area = $("#quiz-area");
     area.innerHTML = "";
-    const ql = quizLang();
     if (quiz.done){
       area.append(
         el("p", { class: "qword" }, `🎉 ${quiz.correct} / ${quiz.order.length}`),
-        quiz.missed.length ? el("p", {}, "To review: ", el("strong", { lang: "fr" }, quiz.missed.join(", "))) : el("p", {}, "Parfait ! No mistakes."),
-        el("button", { class: "btn ghost", type: "button", onclick: () => { Object.assign(quiz, { order: shuffle(L.words), i: 0, correct: 0, missed: [], answered: false, done: false }); renderQuiz(); } }, "Try again"));
+        quiz.missed.length ? el("p", {}, "To review: ", el("strong", { lang: "fr" }, quiz.missed.join(", "))) : el("p", {}, "Parfait !"),
+        el("button", { class: "btn ghost", type: "button", onclick: () => { Object.assign(quiz, { order: shuffle(L.words), i: 0, correct: 0, missed: [], done: false }); renderDrill(); } }, "Try again"));
       return;
     }
     const w = quiz.order[quiz.i];
     const others = shuffle(L.words.filter(x => x !== w)).slice(0, 3);
     const opts = el("div", { class: "opts" });
     shuffle([w, ...others]).forEach(o => {
-      opts.append(el("button", { class: "opt" + (ql === "fa" ? " fa" : ""), type: "button", dir: ql === "fa" ? "rtl" : "ltr",
-        onclick: (ev) => answerQuiz(o === w, ev.currentTarget, opts, w) }, o[ql]));
+      opts.append(el("button", { class: "opt", type: "button", dir: "auto", "data-ok": o === w ? "1" : "0",
+        onclick: (ev) => answerDrill(o === w, ev.currentTarget, opts, w) }, getTr(o)));
     });
     area.append(
       el("p", { class: "muted" }, `Question ${quiz.i + 1} / ${quiz.order.length} · Score ${quiz.correct}`),
       el("div", { class: "qword" }, speakBtn(w.fr), el("span", { lang: "fr" }, w.fr)),
       opts,
       el("div", { class: "feedback", id: "quiz-feedback" }),
-      el("button", { class: "btn", type: "button", id: "quiz-next", hidden: "hidden", onclick: () => { quiz.i++; if (quiz.i >= quiz.order.length) quiz.done = true; renderQuiz(); } }, "Next →"));
+      el("button", { class: "btn", type: "button", id: "quiz-next", hidden: "hidden", onclick: () => { quiz.i++; if (quiz.i >= quiz.order.length) quiz.done = true; renderDrill(); } }, "Next →"));
   }
-  function answerQuiz(ok, btn, opts, w){
+  function answerDrill(ok, btn, opts, w){
     opts.querySelectorAll(".opt").forEach(b => b.disabled = true);
     const fb = $("#quiz-feedback");
     if (ok){ quiz.correct++; btn.classList.add("ok"); fb.textContent = "✔ Très bien !"; fb.className = "feedback ok"; }
     else {
       btn.classList.add("bad");
-      opts.querySelectorAll(".opt").forEach(b => { if (b.textContent === w[quizLang()]) b.classList.add("ok"); });
+      opts.querySelectorAll('.opt[data-ok="1"]').forEach(b => b.classList.add("ok"));
       if (!quiz.missed.includes(w.fr)) quiz.missed.push(w.fr);
       fb.textContent = "✘ Pas tout à fait."; fb.className = "feedback bad";
     }
@@ -231,28 +381,30 @@ document.body.insertAdjacentHTML("afterbegin", "<header class=\"top\">\n  <div c
     $("#dq-bar").style.width = (100 * dq.answered / DQ.length) + "%";
     if (dq.done){
       const pct = Math.round(100 * dq.correct / DQ.length);
-      const msg = pct >= 90 ? "Excellent ! 🌟" : pct >= 70 ? "Très bien ! 👍" : pct >= 50 ? "Pas mal — review the mistakes. 💪" : "Keep going — read the explanations again. 📚";
+      const msg = pct >= 90 ? "Excellent ! 🌟" : pct >= 70 ? "Très bien ! 👍" : pct >= 50 ? "Pas mal ! 💪" : "Courage ! 📚";
       put(
         el("p", { class: "qword" }, `🎉 ${dq.correct} / ${DQ.length} (${pct}%)`),
         el("p", {}, msg),
         dq.missed.length ? el("div", {}, el("strong", {}, "Questions to review:"),
-          el("ul", { class: "missed-list" }, dq.missed.map(k => el("li", {}, `Q${k + 1} (${TYPE_LABEL[DQ[k].type] || DQ[k].type}): ${DQ[k].q}` + (DQ[k].fr && !DQ[k].listen ? ` « ${DQ[k].fr} »` : "") + " → ", el("strong", {}, DQ[k].options[DQ[k].answer]))))) : null,
+          el("ul", { class: "missed-list", dir: "auto" }, dq.missed.map(k => el("li", { dir: "auto" },
+            `Q${k + 1} (${TYPE_LABEL[DQ[k].type] || DQ[k].type}): ${tx(DQ[k].q)}` + (DQ[k].fr && !DQ[k].listen ? ` « ${DQ[k].fr} »` : "") + " → ",
+            el("strong", {}, tx(DQ[k].options[DQ[k].answer])))))) : null,
         el("button", { class: "btn ghost", type: "button", onclick: dqReset }, "Try again"));
       return;
     }
     const item = DQ[dq.i];
     const order = shuffle(item.options.map((t, k) => k));
     const opts = el("div", { class: "dq-opts" });
-    order.forEach(k => opts.append(el("button", { class: "opt", type: "button", "data-k": k,
-      onclick: (ev) => answerDQ(k, ev.currentTarget, opts, item) }, item.options[k])));
+    order.forEach(k => opts.append(el("button", { class: "opt", type: "button", dir: "auto", "data-k": k,
+      onclick: (ev) => answerDQ(k, ev.currentTarget, opts, item) }, tx(item.options[k]))));
     put(
       el("p", { class: "muted", style: "margin:0" }, `Question ${dq.i + 1} / ${DQ.length} · Score ${dq.correct}`),
       el("span", { class: "dq-type" }, TYPE_LABEL[item.type] || item.type),
-      el("div", { class: "dq-q" }, item.q),
+      trEl("div", "dq-q", tx(item.q)),
       item.fr ? el("div", { class: "dq-fr" }, speakBtn(item.fr), item.listen ? el("span", { class: "muted" }, "🎧 Listen (press 🔊)") : el("span", { lang: "fr" }, item.fr)) : null,
       opts,
       el("div", { class: "feedback", id: "dq-feedback" }),
-      el("div", { class: "explain", id: "dq-explain", hidden: "hidden" }),
+      el("div", { class: "explain", id: "dq-explain", dir: "auto", hidden: "hidden" }),
       el("button", { class: "btn", type: "button", id: "dq-next", hidden: "hidden",
         onclick: () => { dq.i++; if (dq.i >= DQ.length) dq.done = true; renderDQ(); } }, dq.i + 1 >= DQ.length ? "See my result →" : "Next →"));
     if (item.listen && item.fr) setTimeout(() => say(item.fr), 300);
@@ -269,7 +421,8 @@ document.body.insertAdjacentHTML("afterbegin", "<header class=\"top\">\n  <div c
       fb.textContent = "✘ Pas tout à fait."; fb.className = "feedback bad";
     }
     const ex = $("#dq-explain");
-    if (item.explain || item.listen){ ex.hidden = false; ex.textContent = (item.listen ? `« ${item.fr} » — ` : "") + (item.explain || ""); }
+    const explain = tx(item.explain);
+    if (explain || item.listen){ ex.hidden = false; ex.textContent = (item.listen ? `« ${item.fr} » — ` : "") + explain; }
     $("#dq-bar").style.width = (100 * dq.answered / DQ.length) + "%";
     $("#dq-next").hidden = false;
   }
@@ -305,5 +458,6 @@ document.body.insertAdjacentHTML("afterbegin", "<header class=\"top\">\n  <div c
 
   $("#footer").textContent = `Jour ${L.day} · ${L.date} · Made by your French teacher 🇫🇷`;
 
-  renderWords(); renderReading(); renderConversation(); renderNumbers(); renderQuiz(); renderDQ();
+  function renderAll(){ renderWords(); renderGrammar(); renderTip(); renderReading(); renderConversation(); renderDrill(); renderDQ(); }
+  renderAll(); renderNumbers();
 })();

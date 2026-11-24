@@ -87,3 +87,31 @@ button{font:inherit;cursor:pointer}
 .missed-list li{margin:4px 0}
 textarea{width:100%;min-height:80px;font:14px/1.4 ui-monospace,Consolas,monospace;padding:8px;border-radius:8px;border:1px solid var(--line);margin-top:8px}
 footer{color:var(--muted);font-size:13px;text-align:center;padding:10px 16px 40px}
+
+/* ---------- help language badge ---------- */
+.lang-badge{background:rgba(255,255,255,.15);padding:3px 10px;border-radius:999px}
+
+/* ---------- grammar section ---------- */
+.grammar{border-left:5px solid var(--blue)}
+.g-title{font-size:20px;margin:6px 0 8px;color:var(--blue)}
+.g-intro{font-size:16px;margin:0 0 10px}
+.g-rules{margin:0 0 14px;padding-inline-start:22px}
+.g-rules li{margin:6px 0;line-height:1.5}
+.g-table-wrap{overflow-x:auto;margin:6px 0 16px}
+.g-table{border-collapse:collapse;min-width:280px;font-size:15px}
+.g-table caption{text-align:start;font-size:13px;color:var(--muted);padding-bottom:6px}
+.g-table th,.g-table td{border:1px solid var(--line);padding:6px 12px;text-align:start}
+.g-table thead th{background:var(--blue-soft);color:var(--blue)}
+.g-table tbody th{background:#faf9f6;font-weight:600}
+.g-table tbody tr:nth-child(even) td{background:#fcfbf8}
+.grammar h4{margin:10px 0 6px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.g-examples{display:flex;flex-direction:column;gap:8px}
+.g-ex{background:#faf9f6;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.g-ex .fr-line span{font-size:16px}
+.g-note{font-size:13px;color:var(--blue);margin-top:3px}
+.g-watch{margin-top:16px;border:1px solid #f3c2c2;background:#fff6f6;border-radius:10px;padding:10px 14px}
+.g-watch-title{font-weight:700;margin-bottom:4px}
+.g-wrong{color:#b91c1c}
+.g-right{color:var(--green);font-weight:600;display:flex;align-items:center;gap:6px}
+.g-why{font-size:14px;margin-top:4px}
+.trline[dir="auto"]:lang(fa),.g-intro:lang(fa),.g-rules li:lang(fa){font-family:Tahoma,"Vazirmatn","Segoe UI",sans-serif}

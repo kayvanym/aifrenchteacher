@@ -15,7 +15,8 @@ and how I like to learn. Short version:
 - I plan to move to Antibes, France. I need practical, everyday French for life there
   (neighbours, shops, the apartment building, the doctor, letters from the syndic).
 - My level is **A2**. My goal is B1. Don't teach beginner basics unless I ask — build on A2.
-- I understand **English, Swedish and Persian**. All translations go in these three languages.
+- I understand **English, Swedish and Persian**. Each daily page uses **one** of them as the help
+  language (chosen at random each day, see §3A). `vocabulary.md` keeps all three.
 - Explain things simply and clearly. Swedish is not my native language, so keep Swedish simple.
 
 ---
@@ -25,7 +26,7 @@ and how I like to learn. Short version:
 ```
 CLAUDE.md                     ← this file (your instructions)
 index.html                    ← home page: list of all daily lessons (newest first)
-days/YYYY-MM-DD.html          ← one interactive lesson page per day (words, tip, reading, conversation, numbers, word drill, quiz)
+days/YYYY-MM-DD.html          ← one interactive lesson page per day (words, grammar, reading, conversation, numbers, word drill, quiz)
 templates/day-template.html   ← the template for every daily page (only the lesson data changes per day)
 assets/lesson.css             ← shared design for ALL lesson pages (colours, layout)
 assets/lesson.js              ← shared page structure + interactivity for ALL lesson pages
@@ -70,6 +71,10 @@ Follow these steps **in order**:
    - Days 1–6 of a week: new content.
    - Day 7 of a week: **review day** — no new theme; reuse the week's words, add a bigger quiz,
      and a reading text that mixes the whole week.
+   - **Choose today's help language at random:** run
+     `python3 -c "import random; print(random.choice(['en','sv','fa']))"` and use the result as `lang`.
+     ALL learner-facing text on the page (translations, grammar explanations, quiz questions and
+     explanations, conversation situation) is written in that ONE language. French stays French.
 4. **Process feedback.**
    - **Import GitHub issues first.** I send my results from each page with the "Send to my teacher"
      button, which creates a GitHub issue titled `Feedback: Day N (YYYY-MM-DD)`. List open issues with
@@ -89,14 +94,19 @@ Follow these steps **in order**:
    - **2–4 review words** that are due in `vocabulary.md` (see §5). Mark them `"review": true`.
 6. **Write the content:**
    - **Words:** French (with article for nouns: *le / la / l' / un / une*; mark *(m)/(f)* when useful),
-     English, Swedish, Persian. Each word gets one short French example sentence + English translation.
-   - **Reading text:** 10–15 lines, at my level, a small story that uses most of today's words.
-     Prefer stories about everyday life in Antibes. Every line has EN, SV and FA translations.
+     translation `tr` in the help language, one short French example sentence + its translation `example_tr`.
+   - **Grammar (`grammar`):** the most important part for learning — this week's grammar point,
+     one small step per day (e.g. day 1: avoir/être, day 2: irregular participles, day 3: negation…).
+     A French `title`; a 1–2 sentence `intro` (what it is and when to use it); 2–5 short `rules`, each
+     with a French mini-example; a `table` when forms matter (conjugations, articles, pronouns);
+     3–5 `examples` (French + translation + a short `note` saying why); and one `watch_out`
+     (a typical mistake: wrong → right → why). Simple words, no long theory.
+   - **Reading text:** 10–15 lines, at my level, a small story that uses most of today's words
+     and today's grammar point. Prefer stories about everyday life in Antibes. Every line has `fr` + `tr`.
    - **Conversation:** 6–10 lines, a realistic dialogue (shop, neighbour, café, phone call…)
-     between two named people. Every line has EN, SV and FA translations.
+     between two named people. Every line has `fr` + `tr`.
    - **Numbers:** 8–12 numbers from the curriculum's range for this week, with a simple
      pronunciation hint. Include tricky ones (e.g. 70, 80, 90 when the time comes).
-   - **Tip:** one short grammar or culture tip (2–3 sentences) in EN, SV and FA.
    - **Quiz du jour:** 10–20 multiple-choice questions (15 is a good normal day; 20 on review days).
      Mix the types — at least **3 vocab, 3 grammar, 2 reading, 2 conversation, 2 numbers**.
      - Reading and conversation questions must be answerable from today's text/dialogue.
@@ -104,14 +114,16 @@ Follow these steps **in order**:
      - Use fill-in sentences (`fr` with `___`) for grammar; use `listen: true` for at least one
        numbers question (the number is only played, not shown).
      - 3–4 options each, only one correct, wrong options must be plausible (typical learner mistakes).
-     - Every question has a short `explain` in English that teaches the rule, not just the answer.
+     - Questions and `explain` are in the help language; `explain` teaches the rule, not just the answer.
+     - At least 2 grammar questions test today's `grammar` section directly.
      - Vary the position of the correct answer in `options` (the page also shuffles them).
 7. **Create the page:** copy `templates/day-template.html` to `days/<today>.html` and replace
    **only** the JavaScript object between `/*LESSON_DATA_START*/` and `/*LESSON_DATA_END*/`
    with today's lesson. Follow the schema exactly (see the example inside the template).
 8. **Update `index.html`:** add today's entry at the **top** of the `DAYS` array.
 9. **Update progress files:**
-   - `progress/vocabulary.md`: add new words (box 1, first seen = today, next review = tomorrow);
+   - `progress/vocabulary.md`: add new words with all three translations (EN, SV, FA),
+     box 1, first seen = today, next review = tomorrow;
      move today's review words up one box and set their next review date.
    - `progress/log.md`: add a new entry at the top (format in §4).
 10. **Check your work** (see §6), then **commit and push** to `main`:
@@ -200,11 +212,13 @@ Use 5 boxes (Leitner system):
 - Translations must be natural, not word-by-word. Persian in correct Persian script
   (use ی and ک, not Arabic ي and ك; use the zero-width non-joiner where needed, e.g. می‌گویم).
 - Level: use only grammar from my current and earlier curriculum weeks, plus at most
-  2–3 new structures that are explained in the tip.
+  2–3 new structures that are explained in the grammar section.
 - The lesson object must be valid JavaScript and follow the schema in the template.
-  Every line in `reading.lines` and `conversation.lines` has `fr`, `en`, `sv`, `fa`.
+  `lang` is set, and every word, reading line, conversation line and example has `fr` + `tr`
+  in that language. For Persian (`fa`), write all learner-facing text in Persian.
 - Open the page in your head: are there 10–15 reading lines? 6–10 conversation lines?
-  8–12 numbers? 10–20 quiz questions with the required mix? Every `answer` index points to
+  8–12 numbers? A complete grammar section (intro, rules, examples, watch_out)?
+  10–20 quiz questions with the required mix? Every `answer` index points to
   the correct option? All fields filled? Index updated? Log and vocabulary updated?
 - Pages must stay self-contained: no external libraries, fonts or images.
 

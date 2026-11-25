@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leçon de français</title>
+<link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+<script>
+/* ==========================================================================
+   LESSON DATA — the teacher replaces ONLY the object between the markers.
+   All texts for the learner (tr, intro, rules, notes, quiz questions, explanations)
+   are written in ONE help language, given in `lang`.
+   Schema:
+   {
+     day: Number, date: "YYYY-MM-DD", week: Number,
+     lang: "en" | "sv" | "fa",                        // today's help language (chosen at random)
+     theme: { fr: String, tr: String },
+     words: [ { fr, tr, example, example_tr, review?: true } ],        // 10–14 items
+     grammar: {
+       title: String,                                 // in French, e.g. "Le passé composé : avoir ou être ?"
+       intro: String,                                 // 1–2 sentences: what it is, when to use it
+       rules: [String],                               // 2–5 short rules, each with a French mini-example
+       table?: { caption?: String, headers: [String], rows: [[String]] },  // conjugation/forms (French)
+       examples: [ { fr, tr, note? } ],               // 3–5 example sentences; note = why (short)
+       watch_out?: { wrong, right, why }              // one typical mistake (French wrong/right)
+     },
+     reading: { title: String, lines: [ { fr, tr } ] },                 // 10–15 lines
+     conversation: { title: String, situation: String,
+                     lines: [ { speaker, fr, tr } ] },                  // 6–10 lines
+     numbers: [ { n: Number, fr: String, hint: String } ],              // 8–12 items
+     quiz: [ {                                                          // 10–20 questions
+       type: "vocab" | "grammar" | "reading" | "conversation" | "numbers",
+       q: String,              // the question (help language)
+       fr?: String,            // optional French sentence shown with a 🔊 button
+       listen?: true,          // if true, fr is NOT shown — only played (listening question)
+       options: [String],      // 3–4 options
+       answer: Number,         // index of the correct option in `options` (0-based)
+       explain: String         // short explanation (help language)
+     } ]
+   }
+   ========================================================================== */
+const LESSON = /*LESSON_DATA_START*/{
+  "day": 2,
+  "date": "2026-11-25",
+  "week": 1,
+  "lang": "en",
+  "theme": {
+    "fr": "Meubler l'appartement",
+    "tr": "Furnishing the apartment"
+  },
+  "words": [
+    {
+      "fr": "le meuble",
+      "tr": "piece of furniture",
+      "example": "Mes meubles sont arrivés samedi.",
+      "example_tr": "My furniture arrived on Saturday."
+    },
+    {
+      "fr": "le canapé",
+      "tr": "sofa",
+      "example": "Le canapé est trop grand pour l'ascenseur.",
+      "example_tr": "The sofa is too big for the lift."
+    },
+    {
+      "fr": "le lit",
+      "tr": "bed",
+      "example": "J'ai mis le lit dans la petite chambre.",
+      "example_tr": "I put the bed in the small bedroom."
+    },
+    {
+      "fr": "l'armoire (f)",
+      "tr": "wardrobe",
+      "example": "L'armoire est lourde : il faut deux personnes.",
+      "example_tr": "The wardrobe is heavy: you need two people."
+    },
+    {
+      "fr": "la machine à laver",
+      "tr": "washing machine",
+      "example": "La machine à laver n'est pas encore installée.",
+      "example_tr": "The washing machine isn't installed yet."
+    },
+    {
+      "fr": "le frigo",
+      "tr": "fridge (informal for le réfrigérateur)",
+      "example": "Le frigo est vide : je dois faire les courses.",
+      "example_tr": "The fridge is empty: I have to go shopping."
+    },
+    {
+      "fr": "la livraison",
+      "tr": "delivery",
+      "example": "La livraison est gratuite à partir de 500 euros.",
+      "example_tr": "Delivery is free from 500 euros."
+    },
+    {
+      "fr": "le livreur / la livreuse",
+      "tr": "delivery person",
+      "example": "Le livreur a sonné à neuf heures.",
+      "example_tr": "The delivery man rang at nine o'clock."
+    },
+    {
+      "fr": "la cave",
+      "tr": "cellar, storage room in the basement",
+      "example": "J'ai descendu les cartons vides à la cave.",
+      "example_tr": "I took the empty boxes down to the cellar."
+    },
+    {
+      "fr": "le rez-de-chaussée",
+      "tr": "ground floor",
+      "example": "La boîte aux lettres est au rez-de-chaussée.",
+      "example_tr": "The mailbox is on the ground floor."
+    },
+    {
+      "fr": "le carton",
+      "tr": "cardboard box",
+      "example": "Il reste encore trois cartons dans l'entrée.",
+      "example_tr": "There are still three boxes in the hall.",
+      "review": true
+    },
+    {
+      "fr": "la clé",
+      "tr": "key",
+      "example": "J'ai donné une clé au livreur pour la cave.",
+      "example_tr": "I gave the delivery man a key to the cellar.",
+      "review": true
+    },
+    {
+      "fr": "l'étage (m)",
+      "tr": "floor (storey)",
+      "example": "Vous habitez à quel étage ?",
+      "example_tr": "Which floor do you live on?",
+      "review": true
+    },
+    {
+      "fr": "l'ascenseur (m)",
+      "tr": "lift / elevator",
+      "example": "Nous avons pris l'ascenseur avec le frigo.",
+      "example_tr": "We took the lift with the fridge.",
+      "review": true
+    }
+  ],
+  "grammar": {
+    "title": "Le passé composé : les participes irréguliers",
+    "intro": "Many common verbs have an irregular past participle. You have to learn them by heart — but they are the verbs you use every day, so it pays off fast.",
+    "rules": [
+      "Verbs in -er are regular: -é (acheter → j'ai acheté). Many other verbs are irregular: faire → j'ai fait, prendre → j'ai pris.",
+      "Several irregular participles end in -u: voir → vu, recevoir → reçu, devoir → dû, pouvoir → pu, venir → venu (je suis venu).",
+      "Some end in -t or -s: dire → dit, écrire → écrit, ouvrir → ouvert, mettre → mis, prendre → pris.",
+      "Monter, descendre and rester take « être » : elle est montée, nous sommes restés.",
+      "But monter and descendre take « avoir » when they have a direct object (you carry something): il a monté le canapé ; j'ai descendu les cartons."
+    ],
+    "table": {
+      "caption": "Common irregular past participles",
+      "headers": [
+        "infinitive",
+        "participle",
+        "example"
+      ],
+      "rows": [
+        [
+          "avoir",
+          "eu",
+          "j'ai eu un problème"
+        ],
+        [
+          "être",
+          "été",
+          "il a été très gentil"
+        ],
+        [
+          "faire",
+          "fait",
+          "nous avons fait les courses"
+        ],
+        [
+          "prendre",
+          "pris",
+          "elle a pris l'escalier"
+        ],
+        [
+          "mettre",
+          "mis",
+          "j'ai mis le lit ici"
+        ],
+        [
+          "voir",
+          "vu",
+          "tu as vu la voisine ?"
+        ],
+        [
+          "recevoir",
+          "reçu",
+          "j'ai reçu mes meubles"
+        ],
+        [
+          "devoir",
+          "dû",
+          "il a dû attendre"
+        ],
+        [
+          "ouvrir",
+          "ouvert",
+          "elle a ouvert la porte"
+        ],
+        [
+          "écrire",
+          "écrit",
+          "j'ai écrit au magasin"
+        ],
+        [
+          "venir (être)",
+          "venu",
+          "le livreur est venu"
+        ]
+      ]
+    },
+    "examples": [
+      {
+        "fr": "Sara a reçu ses meubles samedi.",
+        "tr": "Sara received her furniture on Saturday.",
+        "note": "recevoir → reçu (with ç)"
+      },
+      {
+        "fr": "Le livreur a dû laisser le camion dans la rue.",
+        "tr": "The delivery man had to leave the truck in the street.",
+        "note": "devoir → dû (with a circumflex)"
+      },
+      {
+        "fr": "Elle est descendue à la cave.",
+        "tr": "She went down to the cellar.",
+        "note": "descendre without object → être, feminine → -e"
+      },
+      {
+        "fr": "Ils ont monté l'armoire au deuxième étage.",
+        "tr": "They carried the wardrobe up to the second floor.",
+        "note": "monter + object (l'armoire) → avoir"
+      },
+      {
+        "fr": "Le soir, je suis resté à la maison.",
+        "tr": "In the evening I stayed at home.",
+        "note": "rester → être"
+      }
+    ],
+    "watch_out": {
+      "wrong": "J'ai prendu l'ascenseur.",
+      "right": "J'ai pris l'ascenseur.",
+      "why": "« Prendre » is irregular: the participle is « pris », never « prendu ». Same for apprendre → appris, comprendre → compris."
+    }
+  },
+  "reading": {
+    "title": "Les meubles arrivent !",
+    "lines": [
+      {
+        "fr": "Samedi dernier, Sara a enfin reçu ses meubles.",
+        "tr": "Last Saturday, Sara finally received her furniture."
+      },
+      {
+        "fr": "À neuf heures, elle a ouvert la porte au livreur, un jeune homme très sympathique.",
+        "tr": "At nine o'clock she opened the door to the delivery man, a very friendly young man."
+      },
+      {
+        "fr": "Il a dû laisser le camion devant la résidence, parce que la rue est petite.",
+        "tr": "He had to leave the truck in front of the building, because the street is narrow."
+      },
+      {
+        "fr": "Il a monté le lit et l'armoire au deuxième étage.",
+        "tr": "He carried the bed and the wardrobe up to the second floor."
+      },
+      {
+        "fr": "Mais le canapé était trop grand pour l'ascenseur !",
+        "tr": "But the sofa was too big for the lift!"
+      },
+      {
+        "fr": "Alors, le livreur et son collègue ont pris l'escalier.",
+        "tr": "So the delivery man and his colleague took the stairs."
+      },
+      {
+        "fr": "Pendant ce temps, Sara est descendue à la cave avec trois cartons vides.",
+        "tr": "Meanwhile, Sara went down to the cellar with three empty boxes."
+      },
+      {
+        "fr": "Au rez-de-chaussée, elle a vu sa voisine, madame Bianchi.",
+        "tr": "On the ground floor she saw her neighbour, Mrs Bianchi."
+      },
+      {
+        "fr": "Madame Bianchi a dit : « Bienvenue ! Vous avez beaucoup de travail aujourd'hui ! »",
+        "tr": "Mrs Bianchi said: “Welcome! You have a lot of work today!”"
+      },
+      {
+        "fr": "À midi, le lit, l'armoire et le frigo étaient dans l'appartement.",
+        "tr": "By noon the bed, the wardrobe and the fridge were in the apartment."
+      },
+      {
+        "fr": "Mais la machine à laver n'est pas venue.",
+        "tr": "But the washing machine didn't come."
+      },
+      {
+        "fr": "Sara a écrit un courriel au magasin, et le magasin a répondu tout de suite.",
+        "tr": "Sara wrote an email to the shop, and the shop answered right away."
+      },
+      {
+        "fr": "« Nous avons eu un problème avec le camion. La livraison est mardi. »",
+        "tr": "“We had a problem with the truck. The delivery is on Tuesday.”"
+      },
+      {
+        "fr": "Le soir, Sara est restée à la maison et elle a mis ses livres dans l'armoire.",
+        "tr": "In the evening Sara stayed at home and put her books in the wardrobe."
+      },
+      {
+        "fr": "Elle a pensé : « Ce n'est pas encore parfait, mais maintenant, je suis chez moi. »",
+        "tr": "She thought: “It's not perfect yet, but now I'm at home.”"
+      }
+    ]
+  },
+  "conversation": {
+    "title": "Où est ma machine à laver ?",
+    "situation": "Sara phones the furniture shop because her washing machine was not delivered.",
+    "lines": [
+      {
+        "speaker": "Vendeur",
+        "fr": "Maison Azur, bonjour !",
+        "tr": "Maison Azur, hello!"
+      },
+      {
+        "speaker": "Sara",
+        "fr": "Bonjour, monsieur. J'ai commandé une machine à laver, mais elle n'est pas arrivée samedi.",
+        "tr": "Hello. I ordered a washing machine, but it didn't arrive on Saturday."
+      },
+      {
+        "speaker": "Vendeur",
+        "fr": "Je suis désolé, madame. Vous avez votre numéro de commande ?",
+        "tr": "I'm sorry, madam. Do you have your order number?"
+      },
+      {
+        "speaker": "Sara",
+        "fr": "Oui, c'est la commande trois cent quarante-cinq.",
+        "tr": "Yes, it's order three hundred and forty-five."
+      },
+      {
+        "speaker": "Vendeur",
+        "fr": "Merci. Ah oui, le camion a eu un problème. Nous pouvons livrer mardi matin, entre neuf heures et midi.",
+        "tr": "Thank you. Ah yes, the truck had a problem. We can deliver on Tuesday morning, between nine and twelve."
+      },
+      {
+        "speaker": "Sara",
+        "fr": "Mardi, c'est parfait. Le livreur peut monter la machine ? J'habite au deuxième étage.",
+        "tr": "Tuesday is perfect. Can the delivery man carry the machine up? I live on the second floor."
+      },
+      {
+        "speaker": "Vendeur",
+        "fr": "Bien sûr. La livraison et l'installation sont comprises dans le prix.",
+        "tr": "Of course. Delivery and installation are included in the price."
+      },
+      {
+        "speaker": "Sara",
+        "fr": "Très bien. J'ai payé cinq cent quatre-vingt-dix-neuf euros, c'est ça ?",
+        "tr": "Very good. I paid five hundred and ninety-nine euros, is that right?"
+      },
+      {
+        "speaker": "Vendeur",
+        "fr": "Oui, c'est tout compris. Bonne journée, madame !",
+        "tr": "Yes, everything is included. Have a nice day, madam!"
+      },
+      {
+        "speaker": "Sara",
+        "fr": "Merci, au revoir !",
+        "tr": "Thank you, goodbye!"
+      }
+    ]
+  },
+  "numbers": [
+    {
+      "n": 129,
+      "fr": "cent vingt-neuf",
+      "hint": "sahn van-NUHF"
+    },
+    {
+      "n": 275,
+      "fr": "deux cent soixante-quinze",
+      "hint": "duh sahn swah-sahnt-KANZ"
+    },
+    {
+      "n": 345,
+      "fr": "trois cent quarante-cinq",
+      "hint": "trwah sahn ka-rahnt-SANK"
+    },
+    {
+      "n": 420,
+      "fr": "quatre cent vingt",
+      "hint": "KAT-ruh sahn VAN"
+    },
+    {
+      "n": 599,
+      "fr": "cinq cent quatre-vingt-dix-neuf",
+      "hint": "sank sahn kat-ruh-van-dees-NUHF"
+    },
+    {
+      "n": 680,
+      "fr": "six cent quatre-vingts",
+      "hint": "see sahn kat-ruh-VAN"
+    },
+    {
+      "n": 771,
+      "fr": "sept cent soixante et onze",
+      "hint": "set sahn swah-sahnt-ay-ONZ"
+    },
+    {
+      "n": 890,
+      "fr": "huit cent quatre-vingt-dix",
+      "hint": "weet sahn kat-ruh-van-DEES"
+    },
+    {
+      "n": 960,
+      "fr": "neuf cent soixante",
+      "hint": "nuhf sahn swah-SAHNT"
+    },
+    {
+      "n": 1099,
+      "fr": "mille quatre-vingt-dix-neuf",
+      "hint": "meel kat-ruh-van-dees-NUHF"
+    },
+    {
+      "n": 1180,
+      "fr": "mille cent quatre-vingts",
+      "hint": "meel sahn kat-ruh-VAN"
+    }
+  ],
+  "quiz": [
+    {
+      "type": "vocab",
+      "q": "What is « le canapé » ?",
+      "options": [
+        "the bed",
+        "the sofa",
+        "the wardrobe",
+        "the chair"
+      ],
+      "answer": 1,
+      "explain": "« Le canapé » = sofa. Bed = « le lit », wardrobe = « l'armoire »."
+    },
+    {
+      "type": "vocab",
+      "q": "Where do you put your clothes?",
+      "fr": "Je mets mes vêtements dans ___.",
+      "options": [
+        "le frigo",
+        "la cave",
+        "l'armoire",
+        "la boîte aux lettres"
+      ],
+      "answer": 2,
+      "explain": "« L'armoire » (f) is the wardrobe, for clothes. « La cave » is the storage room in the basement."
+    },
+    {
+      "type": "vocab",
+      "q": "« Le rez-de-chaussée » is…",
+      "options": [
+        "the first floor up",
+        "the ground floor",
+        "the basement",
+        "the roof"
+      ],
+      "answer": 1,
+      "explain": "« Le rez-de-chaussée » = ground floor. « Le premier étage » is one floor up."
+    },
+    {
+      "type": "vocab",
+      "q": "Review word: what does « l'ascenseur » mean?",
+      "options": [
+        "the stairs",
+        "the lift",
+        "the floor",
+        "the entrance"
+      ],
+      "answer": 1,
+      "explain": "« L'ascenseur » = lift/elevator. Stairs = « l'escalier », floor = « l'étage »."
+    },
+    {
+      "type": "vocab",
+      "q": "Complete the sentence:",
+      "fr": "La ___ est gratuite à partir de cinq cents euros.",
+      "options": [
+        "livraison",
+        "livreur",
+        "clé",
+        "cave"
+      ],
+      "answer": 0,
+      "explain": "« La livraison » = the delivery (a thing). « Le livreur » is the person who delivers."
+    },
+    {
+      "type": "grammar",
+      "q": "Choose the correct past participle:",
+      "fr": "Samedi, Sara a ___ ses meubles.",
+      "options": [
+        "recevu",
+        "reçu",
+        "recevé",
+        "reçue"
+      ],
+      "answer": 1,
+      "explain": "« Recevoir » → « reçu » (with ç). With « avoir » there is no agreement with the subject: Sara a reçu."
+    },
+    {
+      "type": "grammar",
+      "q": "Choose the correct form:",
+      "fr": "Nous ___ l'escalier parce que l'ascenseur est en panne.",
+      "options": [
+        "avons prendu",
+        "sommes pris",
+        "avons pris",
+        "avons prené"
+      ],
+      "answer": 2,
+      "explain": "« Prendre » → « pris », and it takes « avoir »: nous avons pris."
+    },
+    {
+      "type": "grammar",
+      "q": "Choose the correct form:",
+      "fr": "Le livreur ___ laisser le camion dans la rue.",
+      "options": [
+        "a dû",
+        "a devu",
+        "est dû",
+        "a devé"
+      ],
+      "answer": 0,
+      "explain": "« Devoir » → « dû » (with a circumflex accent) + infinitive: il a dû laisser."
+    },
+    {
+      "type": "grammar",
+      "q": "Avoir or être? (no object)",
+      "fr": "Sara ___ descendue à la cave.",
+      "options": [
+        "a",
+        "est",
+        "as",
+        "es"
+      ],
+      "answer": 1,
+      "explain": "« Descendre » without a direct object takes « être », and the participle agrees: Sara est descendue."
+    },
+    {
+      "type": "grammar",
+      "q": "Avoir or être? (with an object)",
+      "fr": "Les livreurs ___ monté l'armoire au deuxième étage.",
+      "options": [
+        "sont",
+        "ont",
+        "est",
+        "a"
+      ],
+      "answer": 1,
+      "explain": "Here « monter » has a direct object (l'armoire): they carried something up → « avoir »: ils ont monté l'armoire."
+    },
+    {
+      "type": "grammar",
+      "q": "Choose the correct past participle:",
+      "fr": "J'ai ___ un courriel au magasin.",
+      "options": [
+        "écris",
+        "écrivé",
+        "écrit",
+        "écrite"
+      ],
+      "answer": 2,
+      "explain": "« Écrire » → « écrit »: j'ai écrit. « Écris » is the present tense (j'écris)."
+    },
+    {
+      "type": "reading",
+      "q": "Why did the delivery men take the stairs?",
+      "options": [
+        "The lift was broken",
+        "The sofa was too big for the lift",
+        "Sara lives on the ground floor",
+        "The lift was too slow"
+      ],
+      "answer": 1,
+      "explain": "Line 5: « le canapé était trop grand pour l'ascenseur »."
+    },
+    {
+      "type": "reading",
+      "q": "What did NOT arrive on Saturday?",
+      "options": [
+        "the bed",
+        "the fridge",
+        "the washing machine",
+        "the wardrobe"
+      ],
+      "answer": 2,
+      "explain": "Line 11: « la machine à laver n'est pas venue »."
+    },
+    {
+      "type": "conversation",
+      "q": "When will the washing machine be delivered?",
+      "options": [
+        "Saturday morning",
+        "Tuesday morning",
+        "Tuesday afternoon",
+        "Today at noon"
+      ],
+      "answer": 1,
+      "explain": "« mardi matin, entre neuf heures et midi » = Tuesday morning, between 9 and 12."
+    },
+    {
+      "type": "conversation",
+      "q": "What is included in the price?",
+      "options": [
+        "only the delivery",
+        "delivery and installation",
+        "installation and a fridge",
+        "nothing"
+      ],
+      "answer": 1,
+      "explain": "« La livraison et l'installation sont comprises dans le prix. »"
+    },
+    {
+      "type": "numbers",
+      "q": "Listen and choose the number you hear.",
+      "fr": "cinq cent quatre-vingt-dix-neuf",
+      "listen": true,
+      "options": [
+        "579",
+        "599",
+        "519",
+        "5 099"
+      ],
+      "answer": 1,
+      "explain": "cinq cents (500) + quatre-vingt-dix-neuf (4 × 20 + 19 = 99) = 599."
+    },
+    {
+      "type": "numbers",
+      "q": "How do you say 771 in French?",
+      "options": [
+        "sept cent soixante-et-un",
+        "sept cent soixante et onze",
+        "sept cent septante et un",
+        "sept cents soixante et onze"
+      ],
+      "answer": 1,
+      "explain": "71 = soixante et onze (60 + 11). And « cent » has no -s when another number follows: sept cent soixante et onze."
+    },
+    {
+      "type": "numbers",
+      "q": "Listen and choose the number you hear.",
+      "fr": "mille cent quatre-vingts",
+      "listen": true,
+      "options": [
+        "1 180",
+        "1 120",
+        "1 100",
+        "1 480"
+      ],
+      "answer": 0,
+      "explain": "mille (1000) + cent (100) + quatre-vingts (80) = 1 180."
+    }
+  ]
+}/*LESSON_DATA_END*/;
+</script>
+<script src="../assets/lesson.js"></script>
+</body>
+</html>

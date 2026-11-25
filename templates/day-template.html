@@ -26,7 +26,20 @@
        examples: [ { fr, tr, note? } ],               // 3–5 example sentences; note = why (short)
        watch_out?: { wrong, right, why }              // one typical mistake (French wrong/right)
      },
-     reading: { title: String, lines: [ { fr, tr } ] },                 // 10–15 lines
+     reading: { title: String, lines: [ { fr, tr } ] },                 // exactly 5 short sentences
+     comprehension: {                                                   // reading comprehension
+       title: String,                                 // French title
+       kind: String,                                  // e.g. "Petite histoire", "Le saviez-vous ?", "Un e-mail", "Une annonce"
+       text: [String],                                // 6–10 simple French sentences
+       text_tr: String,                               // full translation (help language), hidden until clicked
+       questions: [ { q, options, answer, explain } ] // 4–5 questions: q + options in simple French, explain in help language
+     },
+     news: [ {                                                          // 1–3 REAL news items (or [] if none found)
+       title: String, title_tr: String,               // French headline + translation
+       place: String, date?: "YYYY-MM-DD",            // e.g. "Nice", "Antibes", "France"
+       lines: [ { fr, tr } ],                         // 2–4 simple French sentences, own words
+       source: { name: String, url: String }          // where the news comes from
+     } ],
      conversation: { title: String, situation: String,
                      lines: [ { speaker, fr, tr } ] },                  // 6–10 lines
      numbers: [ { n: Number, fr: String, hint: String } ],              // 8–12 items

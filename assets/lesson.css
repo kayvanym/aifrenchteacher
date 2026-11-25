@@ -115,3 +115,23 @@ footer{color:var(--muted);font-size:13px;text-align:center;padding:10px 16px 40p
 .g-right{color:var(--green);font-weight:600;display:flex;align-items:center;gap:6px}
 .g-why{font-size:14px;margin-top:4px}
 .trline[dir="auto"]:lang(fa),.g-intro:lang(fa),.g-rules li:lang(fa){font-family:Tahoma,"Vazirmatn","Segoe UI",sans-serif}
+
+/* ---------- reading comprehension ---------- */
+.comp{border-left:5px solid var(--green)}
+.comp-text{font-size:17px;line-height:1.7;background:#faf9f6;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:8px 0}
+.comp-actions{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+.comp-tr{font-size:15px;color:#374151;background:var(--green-soft);border-radius:10px;padding:10px 14px;margin:6px 0}
+.comp-qh{margin:14px 0 4px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.comp-q{border-top:1px solid #f1eee7;padding-top:10px;margin-top:10px}
+.comp-q .dq-q{font-size:16px}
+.comp-score{margin-top:12px;font-weight:600}
+
+/* ---------- news ---------- */
+.news{border-left:5px solid var(--amber)}
+.news-card{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:10px 0;background:#fff}
+.news-meta{font-size:12px;color:var(--amber);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.news-title span{font-size:18px;font-weight:700}
+.news-lines{margin-top:8px}
+.news-line{padding:5px 0;border-top:1px dashed #f1eee7}
+.news-src{font-size:13px;color:var(--muted);margin-top:8px}
+.news-src a{color:var(--blue)}

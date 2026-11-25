@@ -31,7 +31,9 @@ document.body.insertAdjacentHTML("afterbegin", `
   <a href="#words">📚 Mots</a>
   <a href="#grammar" id="nav-grammar">📐 Grammaire</a>
   <a href="#reading">📖 Lecture</a>
+  <a href="#comprehension" id="nav-comp">📝 Compréhension</a>
   <a href="#conversation">💬 Conversation</a>
+  <a href="#news" id="nav-news">📰 Actualités</a>
   <a href="#numbers">🔢 Nombres</a>
   <a href="#drill">🃏 Entraînement</a>
   <a href="#quiz">✅ Quiz du jour</a>
@@ -63,11 +65,23 @@ document.body.insertAdjacentHTML("afterbegin", `
     <div id="reading-lines" style="margin-top:10px"></div>
   </section>
 
+  <section id="comprehension" class="comp" hidden>
+    <h2 id="comp-title">📝 Compréhension écrite</h2>
+    <p class="hint">Read the text (listen if you want), then answer the questions. Try without the translation first!</p>
+    <div id="comp-body"></div>
+  </section>
+
   <section id="conversation">
     <h2 id="conv-title">💬 Conversation</h2>
     <p class="hint" id="conv-situation" dir="auto"></p>
     <button class="btn ghost" type="button" id="conv-all">🔊 Listen to the conversation</button>
     <div id="conv-lines" style="margin-top:10px"></div>
+  </section>
+
+  <section id="news" class="news" hidden>
+    <h2>📰 Actualités</h2>
+    <p class="hint">Real news from France and the Côte d'Azur, written in simple French.</p>
+    <div id="news-body"></div>
   </section>
 
   <section id="numbers">
@@ -156,7 +170,7 @@ document.body.insertAdjacentHTML("afterbegin", `
     $("#lang-badge").textContent = "Help language: " + LANG_NAMES[lang];
   }
   $("#show-tr").checked = showTr;
-  $("#show-tr").addEventListener("change", (e) => { showTr = e.target.checked; store.set("fr-show-tr", showTr ? "1" : "0"); renderReading(); renderConversation(); renderGrammar(); });
+  $("#show-tr").addEventListener("change", (e) => { showTr = e.target.checked; store.set("fr-show-tr", showTr ? "1" : "0"); renderReading(); renderConversation(); renderGrammar(); renderNews(); });
 
   /* ---------- speech ---------- */
   const hasSpeech = "speechSynthesis" in window;
@@ -285,6 +299,76 @@ document.body.insertAdjacentHTML("afterbegin", `
     });
   }
   $("#conv-all").addEventListener("click", () => sayList(L.conversation.lines.map(l => l.fr)));
+
+  /* ---------- reading comprehension ----------
+     comprehension: { title, kind?, text: [String fr sentences] | String, text_tr: String,
+                      questions: [ { q, options, answer, explain } ] } */
+  const comp = { answered: 0, correct: 0, missed: [] };
+  function renderComprehension(){
+    const c = L.comprehension;
+    if (!c){ $("#comprehension").hidden = true; $("#nav-comp").hidden = true; return; }
+    $("#comprehension").hidden = false;
+    $("#comp-title").textContent = "📝 Compréhension écrite : " + c.title;
+    const text = Array.isArray(c.text) ? c.text.join(" ") : c.text;
+    const box = $("#comp-body");
+    box.innerHTML = "";
+    Object.assign(comp, { answered: 0, correct: 0, missed: [] });
+    const trBox = trEl("div", "comp-tr", tx(c.text_tr));
+    trBox.hidden = true;
+    const score = el("div", { class: "muted comp-score" }, `Score: 0 / ${c.questions.length}`);
+    const add = (...kids) => box.append(...kids.filter(k => k != null));
+    add(
+      c.kind ? el("span", { class: "dq-type" }, c.kind) : null,
+      el("div", { class: "comp-text", lang: "fr" }, text),
+      el("div", { class: "comp-actions" },
+        el("button", { class: "btn ghost", type: "button", onclick: () => say(text) }, "🔊 Listen"),
+        c.text_tr ? el("button", { class: "btn ghost", type: "button", onclick: (ev) => { trBox.hidden = !trBox.hidden; ev.currentTarget.textContent = trBox.hidden ? "Show translation" : "Hide translation"; } }, "Show translation") : null),
+      trBox,
+      el("h4", { class: "comp-qh" }, "Questions"),
+      ...c.questions.map((q, qi) => {
+        const fb = el("div", { class: "feedback" });
+        const ex = el("div", { class: "explain", dir: "auto", hidden: "hidden" });
+        const opts = el("div", { class: "dq-opts" });
+        shuffle(q.options.map((t, k) => k)).forEach(k => opts.append(el("button", { class: "opt", type: "button", dir: "auto", "data-k": k,
+          onclick: (ev) => {
+            opts.querySelectorAll(".opt").forEach(b => b.disabled = true);
+            comp.answered++;
+            if (k === q.answer){ comp.correct++; ev.currentTarget.classList.add("ok"); fb.textContent = "✔ Correct !"; fb.className = "feedback ok"; }
+            else {
+              ev.currentTarget.classList.add("bad");
+              opts.querySelectorAll(".opt").forEach(b => { if (Number(b.getAttribute("data-k")) === q.answer) b.classList.add("ok"); });
+              comp.missed.push(qi + 1);
+              fb.textContent = "✘ Pas tout à fait."; fb.className = "feedback bad";
+            }
+            if (q.explain){ ex.hidden = false; ex.textContent = tx(q.explain); }
+            score.textContent = `Score: ${comp.correct} / ${c.questions.length}`;
+          } }, tx(q.options[k]))));
+        return el("div", { class: "comp-q" }, el("div", { class: "dq-q", dir: "auto" }, `${qi + 1}. `, tx(q.q)), opts, fb, ex);
+      }),
+      score);
+  }
+
+  /* ---------- news ----------
+     news: [ { title, title_tr, place?, date?, lines: [ {fr, tr} ], source: {name, url} } ]  (1–3 items) */
+  function renderNews(){
+    const N = L.news || [];
+    if (!N.length){ $("#news").hidden = true; $("#nav-news").hidden = true; return; }
+    $("#news").hidden = false;
+    const box = $("#news-body");
+    box.innerHTML = "";
+    N.forEach(n => {
+      const meta = [n.place, n.date ? new Date(n.date + "T12:00:00").toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) : null].filter(Boolean).join(" · ");
+      box.append(el("article", { class: "news-card" },
+        meta ? el("div", { class: "news-meta" }, "📍 " + meta) : null,
+        el("div", { class: "fr-line news-title" }, el("span", { lang: "fr" }, n.title), speakBtn(n.title)),
+        showTr && n.title_tr ? trEl("div", "trline", n.title_tr) : null,
+        el("div", { class: "news-lines" }, (n.lines || []).map(l => el("div", { class: "news-line" },
+          el("div", { class: "fr-line" }, el("span", { lang: "fr" }, l.fr), speakBtn(l.fr)),
+          showTr ? trEl("div", "trline", getTr(l)) : null))),
+        n.source && n.source.url ? el("div", { class: "news-src" }, "Source : ",
+          el("a", { href: n.source.url, target: "_blank", rel: "noopener" }, (n.source.name || "link") + " ↗")) : null));
+    });
+  }
 
   /* ---------- numbers ---------- */
   const numStats = { asked: 0, correct: 0, missed: [] };
@@ -435,6 +519,7 @@ document.body.insertAdjacentHTML("afterbegin", `
       `${L.date} — Day ${L.day} (${L.theme.fr}): ` +
       `daily quiz ${dq.correct}/${dq.answered}` + (dq.done ? "" : ` (answered ${dq.answered} of ${DQ.length})`) +
       `; missed questions: ${dq.missed.length ? dq.missed.map(k => `Q${k + 1} ${DQ[k].type}`).join(", ") : "none"}` +
+      (L.comprehension ? `; reading comprehension ${comp.correct}/${L.comprehension.questions.length}` + (comp.missed.length ? ` (missed Q${comp.missed.join(", Q")})` : "") : "") +
       `; word drill ${quiz.correct}/${answeredWords}` + (quiz.done ? "" : " (not finished)") +
       `; missed words: ${quiz.missed.length ? quiz.missed.join(", ") : "none"}` +
       `; numbers ${numStats.correct}/${numStats.asked}` +
@@ -458,6 +543,6 @@ document.body.insertAdjacentHTML("afterbegin", `
 
   $("#footer").textContent = `Jour ${L.day} · ${L.date} · Made by your French teacher 🇫🇷`;
 
-  function renderAll(){ renderWords(); renderGrammar(); renderTip(); renderReading(); renderConversation(); renderDrill(); renderDQ(); }
+  function renderAll(){ renderWords(); renderGrammar(); renderTip(); renderReading(); renderComprehension(); renderConversation(); renderNews(); renderDrill(); renderDQ(); }
   renderAll(); renderNumbers();
 })();

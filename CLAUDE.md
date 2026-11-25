@@ -26,7 +26,7 @@ and how I like to learn. Short version:
 ```
 CLAUDE.md                     ← this file (your instructions)
 index.html                    ← home page: list of all daily lessons (newest first)
-days/YYYY-MM-DD.html          ← one interactive lesson page per day (words, grammar, reading, conversation, numbers, word drill, quiz)
+days/YYYY-MM-DD.html          ← one interactive lesson page per day (words, grammar, reading, comprehension, conversation, news, numbers, word drill, quiz)
 templates/day-template.html   ← the template for every daily page (only the lesson data changes per day)
 assets/lesson.css             ← shared design for ALL lesson pages (colours, layout)
 assets/lesson.js              ← shared page structure + interactivity for ALL lesson pages
@@ -101,15 +101,32 @@ Follow these steps **in order**:
      with a French mini-example; a `table` when forms matter (conjugations, articles, pronouns);
      3–5 `examples` (French + translation + a short `note` saying why); and one `watch_out`
      (a typical mistake: wrong → right → why). Simple words, no long theory.
-   - **Reading text:** 10–15 lines, at my level, a small story that uses most of today's words
-     and today's grammar point. Prefer stories about everyday life in Antibes. Every line has `fr` + `tr`.
+   - **Reading text (`reading`):** exactly **5 short sentences** that use today's words and today's
+     grammar point — everyday life in Antibes. Every line has `fr` + `tr`.
+   - **Reading comprehension (`comprehension`):** a separate short text of 6–10 simple French sentences
+     with 4–5 multiple-choice questions. Vary the `kind` from day to day: a little story, an interesting
+     fact about France or the Côte d'Azur ("Le saviez-vous ?"), an e-mail or letter (e.g. from the syndic),
+     an ad, a menu, a notice in the building… Facts must be true and well known — if unsure, write a story.
+     Give the full translation in `text_tr`. Questions and options in simple French (A2);
+     `explain` in the help language, pointing to the sentence that contains the answer.
+     Use today's or recent words and grammar where it fits naturally.
+   - **News (`news`):** 1–3 **real** news items from the last 7 days about France, preferably the
+     Côte d'Azur (Antibes, Nice, Cannes…). Use WebSearch/WebFetch to find them; prefer reliable sources
+     (city websites, France 3 Côte d'Azur, Nice-Matin, franceinfo, Euronews…) and useful or pleasant
+     topics: local events, culture, transport, weather, practical changes, sport. Avoid violent crime
+     and very upsetting stories. **Never invent news or details** — only write what the source says.
+     Rewrite each item in your own simple A2 French (2–4 sentences, never copy sentences from the source),
+     add a translation for the headline and every line, and give `place`, `date` and the `source` (name + URL).
+     If you can't find reliable recent news, use fewer items or leave `news` empty.
    - **Conversation:** 6–10 lines, a realistic dialogue (shop, neighbour, café, phone call…)
      between two named people. Every line has `fr` + `tr`.
    - **Numbers:** 8–12 numbers from the curriculum's range for this week, with a simple
      pronunciation hint. Include tricky ones (e.g. 70, 80, 90 when the time comes).
    - **Quiz du jour:** 10–20 multiple-choice questions (15 is a good normal day; 20 on review days).
-     Mix the types — at least **3 vocab, 3 grammar, 2 reading, 2 conversation, 2 numbers**.
-     - Reading and conversation questions must be answerable from today's text/dialogue.
+     Mix the types — at least **3 vocab, 3 grammar, 1 reading, 2 conversation, 2 numbers**.
+     - Reading and conversation questions must be answerable from today's text/dialogue
+       (reading comprehension has its own questions — don't repeat them in the quiz).
+       Optionally add 1 question about today's news.
      - Grammar questions practise this week's grammar point (and earlier points on review days).
      - Use fill-in sentences (`fr` with `___`) for grammar; use `listen: true` for at least one
        numbers question (the number is only played, not shown).
@@ -216,7 +233,8 @@ Use 5 boxes (Leitner system):
 - The lesson object must be valid JavaScript and follow the schema in the template.
   `lang` is set, and every word, reading line, conversation line and example has `fr` + `tr`
   in that language. For Persian (`fa`), write all learner-facing text in Persian.
-- Open the page in your head: are there 10–15 reading lines? 6–10 conversation lines?
+- Open the page in your head: exactly 5 reading lines? A comprehension text (6–10 sentences,
+  4–5 questions)? 1–3 real news items with source links (or none if nothing reliable)? 6–10 conversation lines?
   8–12 numbers? A complete grammar section (intro, rules, examples, watch_out)?
   10–20 quiz questions with the required mix? Every `answer` index points to
   the correct option? All fields filled? Index updated? Log and vocabulary updated?

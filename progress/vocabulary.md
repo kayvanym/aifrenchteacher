@@ -8,11 +8,7 @@ Keep the table sorted by *Next review* (earliest first).
 | le déménagement | the move (moving house) | flytten | اسباب‌کشی | 1 | 2026-11-24 | 2026-11-24 | 2026-11-25 |
 | emménager | to move in | flytta in | به خانهٔ جدید نقل مکان کردن | 1 | 2026-11-24 | 2026-11-24 | 2026-11-25 |
 | s'installer | to settle in | installera sig | مستقر شدن | 1 | 2026-11-24 | 2026-11-24 | 2026-11-25 |
-| la boîte aux lettres | mailbox | brevlåda | صندوق پست | 1 | 2026-11-24 | 2026-11-24 | 2026-11-25 |
-| le quartier | neighbourhood | kvarter, område | محله | 1 | 2026-11-24 | 2026-11-24 | 2026-11-25 |
 | le gardien / la gardienne | caretaker | fastighetsskötare | سرایدار | 1 | 2026-11-24 | 2026-11-24 | 2026-11-25 |
-| les charges (f) | service charges | avgifter | هزینه‌های مشترک ساختمان (شارژ) | 1 | 2026-11-24 | 2026-11-24 | 2026-11-25 |
-| le syndic | building management company | förvaltare | شرکت مدیریت ساختمان | 1 | 2026-11-24 | 2026-11-24 | 2026-11-25 |
 | le meuble | piece of furniture | möbel | مبل، اثاثیه | 1 | 2026-11-25 | 2026-11-25 | 2026-11-26 |
 | le canapé | sofa | soffa | کاناپه | 1 | 2026-11-25 | 2026-11-25 | 2026-11-26 |
 | le lit | bed | säng | تخت‌خواب | 1 | 2026-11-25 | 2026-11-25 | 2026-11-26 |
@@ -23,7 +19,26 @@ Keep the table sorted by *Next review* (earliest first).
 | le livreur / la livreuse | delivery person | bud, leveransperson | مأمور تحویل، پیک | 1 | 2026-11-25 | 2026-11-25 | 2026-11-26 |
 | la cave | cellar, basement storage | källare, källarförråd | انباری زیرزمین | 1 | 2026-11-25 | 2026-11-25 | 2026-11-26 |
 | le rez-de-chaussée | ground floor | bottenvåning | طبقهٔ همکف | 1 | 2026-11-25 | 2026-11-25 | 2026-11-26 |
+| ennuyeux / ennuyeuse | boring | tråkig | خسته‌کننده | 1 | 2026-11-25 | 2026-11-25 | 2026-11-26 |
+| se reposer | to rest | vila sig | استراحت کردن | 1 | 2026-11-25 | 2026-11-25 | 2026-11-26 |
+| avoir peur (de) | to be afraid (of) | vara rädd (för) | ترسیدن | 1 | 2026-11-25 | 2026-11-25 | 2026-11-26 |
+| l'actualité (f) | the news, current events | nyheterna, aktuella händelser | اخبار، رویدادهای روز | 1 | 2026-11-25 | 2026-11-25 | 2026-11-26 |
+| le portable | mobile phone | mobiltelefon | تلفن همراه | 1 | 2026-11-25 | 2026-11-25 | 2026-11-26 |
+| l'électricité (f) | electricity | el | برق | 1 | 2026-11-26 | 2026-11-26 | 2026-11-27 |
+| le compteur | meter (electricity, water) | mätare | کنتور | 1 | 2026-11-26 | 2026-11-26 | 2026-11-27 |
+| l'abonnement (m) | subscription | abonnemang | اشتراک | 1 | 2026-11-26 | 2026-11-26 | 2026-11-27 |
+| la facture | bill, invoice | faktura, räkning | صورت‌حساب، قبض | 1 | 2026-11-26 | 2026-11-26 | 2026-11-27 |
+| le fournisseur | supplier, provider | leverantör | شرکت ارائه‌دهنده | 1 | 2026-11-26 | 2026-11-26 | 2026-11-27 |
+| le contrat | contract | avtal, kontrakt | قرارداد | 1 | 2026-11-26 | 2026-11-26 | 2026-11-27 |
+| la box (internet) | internet router | router, modem | مودم اینترنت | 1 | 2026-11-26 | 2026-11-26 | 2026-11-27 |
+| le technicien / la technicienne | technician | tekniker | تکنسین | 1 | 2026-11-26 | 2026-11-26 | 2026-11-27 |
+| le rendez-vous | appointment | tid, möte | وقت (ملاقات)، قرار | 1 | 2026-11-26 | 2026-11-26 | 2026-11-27 |
+| la panne | breakdown, outage | fel, avbrott | خرابی، قطعی | 1 | 2026-11-26 | 2026-11-26 | 2026-11-27 |
 | le carton | cardboard box | kartong | کارتن | 2 | 2026-11-24 | 2026-11-25 | 2026-11-28 |
 | la clé | key | nyckel | کلید | 2 | 2026-11-24 | 2026-11-25 | 2026-11-28 |
 | l'étage (m) | floor (storey) | våning | طبقه | 2 | 2026-11-24 | 2026-11-25 | 2026-11-28 |
 | l'ascenseur (m) | lift / elevator | hiss | آسانسور | 2 | 2026-11-24 | 2026-11-25 | 2026-11-28 |
+| la boîte aux lettres | mailbox | brevlåda | صندوق پست | 2 | 2026-11-24 | 2026-11-26 | 2026-11-29 |
+| le quartier | neighbourhood | kvarter, område | محله | 2 | 2026-11-24 | 2026-11-26 | 2026-11-29 |
+| les charges (f) | service charges | avgifter | هزینه‌های مشترک ساختمان (شارژ) | 2 | 2026-11-24 | 2026-11-26 | 2026-11-29 |
+| le syndic | building management company | förvaltare | شرکت مدیریت ساختمان | 2 | 2026-11-24 | 2026-11-26 | 2026-11-29 |

@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leçon de français</title>
+<link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+<script>
+/* ==========================================================================
+   LESSON DATA — the teacher replaces ONLY the object between the markers.
+   All texts for the learner (tr, intro, rules, notes, quiz questions, explanations)
+   are written in ONE help language, given in `lang`.
+   Schema:
+   {
+     day: Number, date: "YYYY-MM-DD", week: Number,
+     lang: "en" | "sv" | "fa",                        // today's help language (chosen at random)
+     theme: { fr: String, tr: String },
+     words: [ { fr, tr, example, example_tr, review?: true } ],        // 10–14 items
+     grammar: {
+       title: String,                                 // in French, e.g. "Le passé composé : avoir ou être ?"
+       intro: String,                                 // 1–2 sentences: what it is, when to use it
+       rules: [String],                               // 2–5 short rules, each with a French mini-example
+       table?: { caption?: String, headers: [String], rows: [[String]] },  // conjugation/forms (French)
+       examples: [ { fr, tr, note? } ],               // 3–5 example sentences; note = why (short)
+       watch_out?: { wrong, right, why }              // one typical mistake (French wrong/right)
+     },
+     reading: { title: String, lines: [ { fr, tr } ] },                 // exactly 5 short sentences
+     comprehension: {                                                   // reading comprehension
+       title: String,                                 // French title
+       kind: String,                                  // e.g. "Petite histoire", "Le saviez-vous ?", "Un e-mail", "Une annonce"
+       text: [String],                                // 6–10 simple French sentences
+       text_tr: String,                               // full translation (help language), hidden until clicked
+       questions: [ { q, options, answer, explain } ] // 4–5 questions: q + options in simple French, explain in help language
+     },
+     news: [ {                                                          // 1–3 REAL news items (or [] if none found)
+       title: String, title_tr: String,               // French headline + translation
+       place: String, date?: "YYYY-MM-DD",            // e.g. "Nice", "Antibes", "France"
+       lines: [ { fr, tr } ],                         // 2–4 simple French sentences, own words
+       source: { name: String, url: String }          // where the news comes from
+     } ],
+     conversation: { title: String, situation: String,
+                     lines: [ { speaker, fr, tr } ] },                  // 6–10 lines
+     numbers: [ { n: Number, fr: String, hint: String } ],              // 8–12 items
+     quiz: [ {                                                          // 10–20 questions
+       type: "vocab" | "grammar" | "reading" | "conversation" | "numbers",
+       q: String,              // the question (help language)
+       fr?: String,            // optional French sentence shown with a 🔊 button
+       listen?: true,          // if true, fr is NOT shown — only played (listening question)
+       options: [String],      // 3–4 options
+       answer: Number,         // index of the correct option in `options` (0-based)
+       explain: String         // short explanation (help language)
+     } ]
+   }
+   ========================================================================== */
+const LESSON = /*LESSON_DATA_START*/{
+  "day": 3,
+  "date": "2026-11-26",
+  "week": 1,
+  "lang": "fa",
+  "theme": {
+    "fr": "Électricité, eau et internet",
+    "tr": "برق، آب و اینترنت"
+  },
+  "words": [
+    {
+      "fr": "l'électricité (f)",
+      "tr": "برق",
+      "example": "Nous n'avons pas eu d'électricité pendant deux heures.",
+      "example_tr": "دو ساعت برق نداشتیم."
+    },
+    {
+      "fr": "le compteur",
+      "tr": "کنتور",
+      "example": "Le compteur d'eau est dans la cave.",
+      "example_tr": "کنتور آب در انباری زیرزمین است."
+    },
+    {
+      "fr": "l'abonnement (m)",
+      "tr": "اشتراک (قرارداد ماهانه)",
+      "example": "J'ai pris un abonnement internet à trente euros par mois.",
+      "example_tr": "یک اشتراک اینترنت ماهی سی یورو گرفتم."
+    },
+    {
+      "fr": "la facture",
+      "tr": "صورت‌حساب، قبض",
+      "example": "Je n'ai pas encore reçu la facture d'eau.",
+      "example_tr": "هنوز قبض آب را دریافت نکرده‌ام."
+    },
+    {
+      "fr": "le fournisseur",
+      "tr": "شرکت ارائه‌دهنده (برق، گاز، اینترنت)",
+      "example": "J'ai changé de fournisseur d'électricité.",
+      "example_tr": "شرکت برقم را عوض کردم."
+    },
+    {
+      "fr": "le contrat",
+      "tr": "قرارداد",
+      "example": "Elle a signé le contrat hier.",
+      "example_tr": "او دیروز قرارداد را امضا کرد."
+    },
+    {
+      "fr": "la box (internet)",
+      "tr": "مودم اینترنت",
+      "example": "La box n'est pas encore arrivée.",
+      "example_tr": "مودم هنوز نرسیده است."
+    },
+    {
+      "fr": "le technicien / la technicienne",
+      "tr": "تکنسین",
+      "example": "Le technicien n'est pas venu ce matin.",
+      "example_tr": "تکنسین امروز صبح نیامد."
+    },
+    {
+      "fr": "le rendez-vous",
+      "tr": "وقت (ملاقات)، قرار",
+      "example": "J'ai pris rendez-vous pour mardi.",
+      "example_tr": "برای سه‌شنبه وقت گرفتم."
+    },
+    {
+      "fr": "la panne",
+      "tr": "خرابی، قطعی",
+      "example": "Il y a une panne d'internet dans tout l'immeuble.",
+      "example_tr": "در کل ساختمان اینترنت قطع است."
+    },
+    {
+      "fr": "la boîte aux lettres",
+      "tr": "صندوق پست",
+      "example": "La facture n'est pas arrivée dans ma boîte aux lettres.",
+      "example_tr": "قبض به صندوق پستم نرسید.",
+      "review": true
+    },
+    {
+      "fr": "le syndic",
+      "tr": "شرکت مدیریت ساختمان",
+      "example": "Le syndic n'a pas répondu à mon courriel.",
+      "example_tr": "شرکت مدیریت ساختمان به ایمیلم جواب نداد.",
+      "review": true
+    },
+    {
+      "fr": "les charges (f)",
+      "tr": "هزینه‌های مشترک ساختمان (شارژ)",
+      "example": "L'eau froide est comprise dans les charges.",
+      "example_tr": "آب سرد جزو شارژ ساختمان است.",
+      "review": true
+    },
+    {
+      "fr": "le quartier",
+      "tr": "محله",
+      "example": "Dans mon quartier, la fibre est arrivée l'année dernière.",
+      "example_tr": "در محلهٔ من، فیبر نوری سال گذشته رسید.",
+      "review": true
+    }
+  ],
+  "grammar": {
+    "title": "La négation au passé composé",
+    "intro": "برای منفی کردن جمله در passé composé، «ne … pas» را دور فعل کمکی (avoir یا être) می‌گذاریم. اسم مفعول (participe) بعد از «pas» می‌آید.",
+    "rules": [
+      "ne + فعل کمکی + pas + اسم مفعول : je n'ai pas reçu la facture.",
+      "قبل از حرف صدادار، «ne» به «n'» تبدیل می‌شود : il n'a pas payé, elle n'est pas venue.",
+      "با être، اسم مفعول در جملهٔ منفی هم با فاعل مطابقت می‌کند : elle n'est pas arrivée, ils ne sont pas restés.",
+      "کلمه‌های منفی دیگر هم همین‌جا می‌آیند : ne … jamais (هرگز)، ne … rien (هیچ چیز)، ne … plus (دیگر نه)، ne … pas encore (هنوز نه) : je n'ai rien compris.",
+      "در فعل‌های انعکاسی، «ne» قبل از ضمیر می‌آید : je ne me suis pas installé(e)."
+    ],
+    "table": {
+      "caption": "venir (با être) و recevoir (با avoir) — منفی",
+      "headers": [
+        "",
+        "venir",
+        "recevoir"
+      ],
+      "rows": [
+        [
+          "je",
+          "ne suis pas venu(e)",
+          "n'ai pas reçu"
+        ],
+        [
+          "tu",
+          "n'es pas venu(e)",
+          "n'as pas reçu"
+        ],
+        [
+          "il / elle",
+          "n'est pas venu / venue",
+          "n'a pas reçu"
+        ],
+        [
+          "nous",
+          "ne sommes pas venu(e)s",
+          "n'avons pas reçu"
+        ],
+        [
+          "vous",
+          "n'êtes pas venu(e)(s)",
+          "n'avez pas reçu"
+        ],
+        [
+          "ils / elles",
+          "ne sont pas venus / venues",
+          "n'ont pas reçu"
+        ]
+      ]
+    },
+    "examples": [
+      {
+        "fr": "Le technicien n'est pas venu.",
+        "tr": "تکنسین نیامد.",
+        "note": "venir ← être · «ne … pas» دور «est»"
+      },
+      {
+        "fr": "La technicienne n'est pas venue.",
+        "tr": "تکنسین (خانم) نیامد.",
+        "note": "فاعل مؤنث ← venue"
+      },
+      {
+        "fr": "Je n'ai pas encore reçu ma box.",
+        "tr": "هنوز مودمم را دریافت نکرده‌ام.",
+        "note": "pas encore = هنوز نه"
+      },
+      {
+        "fr": "Nous n'avons jamais payé cette facture.",
+        "tr": "ما هرگز این قبض را پرداخت نکرده‌ایم.",
+        "note": "ne … jamais = هرگز"
+      },
+      {
+        "fr": "Sara n'a rien compris au contrat.",
+        "tr": "سارا از قرارداد هیچ چیز نفهمید.",
+        "note": "«rien» هم قبل از اسم مفعول می‌آید"
+      }
+    ],
+    "watch_out": {
+      "wrong": "Je n'ai reçu pas la facture.",
+      "right": "Je n'ai pas reçu la facture.",
+      "why": "«pas» بلافاصله بعد از فعل کمکی (ai) می‌آید، نه بعد از اسم مفعول (reçu)."
+    }
+  },
+  "reading": {
+    "title": "Toujours pas d'internet !",
+    "lines": [
+      {
+        "fr": "Lundi, Sara a appelé un fournisseur pour prendre un abonnement internet.",
+        "tr": "دوشنبه سارا به یک شرکت اینترنت زنگ زد تا اشتراک اینترنت بگیرد."
+      },
+      {
+        "fr": "Elle a pris rendez-vous avec un technicien pour mercredi matin.",
+        "tr": "او برای چهارشنبه صبح با یک تکنسین وقت گرفت."
+      },
+      {
+        "fr": "Mais mercredi, le technicien n'est pas venu et il n'a pas téléphoné.",
+        "tr": "اما چهارشنبه تکنسین نیامد و تلفن هم نکرد."
+      },
+      {
+        "fr": "Sara n'a pas encore reçu la box, et elle n'a rien trouvé dans sa boîte aux lettres.",
+        "tr": "سارا هنوز مودم را دریافت نکرده و در صندوق پستش هم چیزی پیدا نکرد."
+      },
+      {
+        "fr": "Heureusement, l'électricité marche bien : elle a déjà signé le contrat la semaine dernière.",
+        "tr": "خوشبختانه برق خوب کار می‌کند: او هفتهٔ گذشته قرارداد را امضا کرده است."
+      }
+    ]
+  },
+  "comprehension": {
+    "title": "Coupure d'eau dans la résidence",
+    "kind": "Un e-mail du syndic",
+    "text": [
+      "Le syndic informe les résidents de la Résidence Les Pins d'une coupure d'eau le jeudi 3 décembre.",
+      "Un plombier va changer un vieux tuyau au sous-sol.",
+      "Il n'y a pas d'eau de neuf heures à quatorze heures.",
+      "Pendant la coupure, l'ascenseur fonctionne normalement.",
+      "La semaine dernière, le gardien a vérifié tous les compteurs d'eau.",
+      "Il n'a pas trouvé de problème dans les appartements.",
+      "Ces travaux ne changent pas le montant des charges.",
+      "Pour toute question, vous pouvez écrire au syndic ou parler avec le gardien.",
+      "Merci de votre compréhension. — Azur Gestion, votre syndic"
+    ],
+    "text_tr": "شرکت مدیریت ساختمان به ساکنان «رزیدانس لِ پَن» اطلاع می‌دهد که روز پنج‌شنبه ۳ دسامبر آب قطع خواهد بود. یک لوله‌کش یک لولهٔ قدیمی را در زیرزمین عوض می‌کند. از ساعت نه تا چهارده آب نیست. در زمان قطعی، آسانسور به طور عادی کار می‌کند. هفتهٔ گذشته سرایدار همهٔ کنتورهای آب را بررسی کرد. او در آپارتمان‌ها مشکلی پیدا نکرد. این کارها مبلغ شارژ ساختمان را تغییر نمی‌دهد. برای هر سؤالی می‌توانید به شرکت مدیریت ساختمان نامه بنویسید یا با سرایدار صحبت کنید. از درک شما متشکریم. — آزور ژِستیون، شرکت مدیریت ساختمان شما",
+    "questions": [
+      {
+        "q": "Quand est la coupure d'eau ?",
+        "options": [
+          "le jeudi 3 décembre",
+          "le mardi 3 décembre",
+          "le jeudi 13 décembre",
+          "aujourd'hui"
+        ],
+        "answer": 0,
+        "explain": "جملهٔ ۱: «une coupure d'eau le jeudi 3 décembre»."
+      },
+      {
+        "q": "Pourquoi est-ce que l'eau est coupée ?",
+        "options": [
+          "L'ascenseur est en panne.",
+          "Un plombier change un vieux tuyau.",
+          "Le gardien change les compteurs.",
+          "Les résidents n'ont pas payé les charges."
+        ],
+        "answer": 1,
+        "explain": "جملهٔ ۲: «Un plombier va changer un vieux tuyau» = یک لوله‌کش لولهٔ قدیمی را عوض می‌کند."
+      },
+      {
+        "q": "La coupure dure combien de temps ?",
+        "options": [
+          "deux heures",
+          "neuf heures",
+          "cinq heures",
+          "toute la journée"
+        ],
+        "answer": 2,
+        "explain": "جملهٔ ۳: از ساعت نه (9) تا چهارده (14) = پنج ساعت."
+      },
+      {
+        "q": "Qu'est-ce que le gardien a trouvé dans les appartements ?",
+        "options": [
+          "un vieux compteur",
+          "un problème d'eau chaude",
+          "une panne d'électricité",
+          "rien : il n'a pas trouvé de problème"
+        ],
+        "answer": 3,
+        "explain": "جملهٔ ۶: «Il n'a pas trouvé de problème» — نفی در passé composé! بعد از pas، «un/une» به «de» تبدیل می‌شود."
+      },
+      {
+        "q": "Et les charges ?",
+        "options": [
+          "Elles ne changent pas.",
+          "Elles augmentent.",
+          "Elles baissent.",
+          "Le plombier les paie."
+        ],
+        "answer": 0,
+        "explain": "جملهٔ ۷: «Ces travaux ne changent pas le montant des charges» = مبلغ شارژ تغییر نمی‌کند."
+      }
+    ]
+  },
+  "news": [
+    {
+      "title": "Le marché de Noël d'Antibes ouvre le 5 décembre",
+      "title_tr": "بازار کریسمس آنتیب از ۵ دسامبر باز می‌شود",
+      "place": "Antibes",
+      "date": "2026-11-20",
+      "lines": [
+        {
+          "fr": "Cette année, le marché de Noël d'Antibes est ouvert du 5 décembre au 3 janvier, sur l'esplanade du Pré des Pêcheurs.",
+          "tr": "امسال بازار کریسمس آنتیب از ۵ دسامبر تا ۳ ژانویه در میدان «پره دِ پِشُر» باز است."
+        },
+        {
+          "fr": "Il y a 23 chalets gourmands et 9 chalets d'artisans.",
+          "tr": "۲۳ کلبهٔ خوراکی و ۹ کلبهٔ صنایع دستی وجود دارد."
+        },
+        {
+          "fr": "On trouve aussi une grande roue, un carrousel et un petit train de Noël.",
+          "tr": "یک چرخ و فلک بزرگ، یک چرخ و فلک اسبی و یک قطار کوچک کریسمس هم هست."
+        },
+        {
+          "fr": "Le marché est ouvert de 11 h à 21 h, et jusqu'à 22 h le vendredi et le samedi.",
+          "tr": "بازار از ساعت ۱۱ تا ۲۱ باز است و جمعه‌ها و شنبه‌ها تا ساعت ۲۲."
+        }
+      ],
+      "source": {
+        "name": "Fréquence Sud — Marché de Noël, Antibes",
+        "url": "https://www.frequence-sud.fr/art-107425-marche_de_noel-_antibes_antibes"
+      }
+    },
+    {
+      "title": "Une patinoire à Juan-les-Pins pour les fêtes",
+      "title_tr": "یک پیست اسکیت روی یخ در ژوان‌لِ‌پَن برای تعطیلات",
+      "place": "Juan-les-Pins (Antibes)",
+      "date": "2026-11-19",
+      "lines": [
+        {
+          "fr": "Du 19 décembre au 3 janvier, une patinoire est installée dans la pinède Gould, à Juan-les-Pins.",
+          "tr": "از ۱۹ دسامبر تا ۳ ژانویه یک پیست اسکیت روی یخ در کاج‌زار «گولد» در ژوان‌لِ‌پَن برپا می‌شود."
+        },
+        {
+          "fr": "Elle est gratuite pour les enfants jusqu'à 10 ans ; après, l'entrée coûte 3 euros.",
+          "tr": "برای بچه‌ها تا ۱۰ سال رایگان است؛ بالاتر از آن ورودی ۳ یورو است."
+        },
+        {
+          "fr": "Le Père Noël arrive en ski nautique le mercredi 23 décembre à 10 h 30.",
+          "tr": "بابانوئل روز چهارشنبه ۲۳ دسامبر ساعت ۱۰:۳۰ با اسکی روی آب می‌رسد."
+        }
+      ],
+      "source": {
+        "name": "Recreanice — Noël à Antibes Juan-les-Pins",
+        "url": "https://recreanice.fr/fetes-animations-noel-antibes-juan-les-pins-enfants"
+      }
+    }
+  ],
+  "conversation": {
+    "title": "Le technicien n'est pas venu",
+    "situation": "سارا به شرکت اینترنت زنگ می‌زند، چون تکنسین امروز صبح نیامده است.",
+    "lines": [
+      {
+        "speaker": "Léa",
+        "fr": "Azur Télécom, bonjour ! Je m'appelle Léa. Comment puis-je vous aider ?",
+        "tr": "آزور تِلِکام، سلام! اسم من لئا است. چطور می‌توانم کمکتان کنم؟"
+      },
+      {
+        "speaker": "Sara",
+        "fr": "Bonjour. J'ai pris rendez-vous pour ce matin, mais le technicien n'est pas venu.",
+        "tr": "سلام. برای امروز صبح وقت گرفته بودم، اما تکنسین نیامد."
+      },
+      {
+        "speaker": "Léa",
+        "fr": "Je suis désolée, madame. Vous avez votre numéro de contrat ?",
+        "tr": "متأسفم، خانم. شمارهٔ قراردادتان را دارید؟"
+      },
+      {
+        "speaker": "Sara",
+        "fr": "Oui, c'est le contrat huit cent soixante-quinze.",
+        "tr": "بله، قرارداد شمارهٔ هشتصد و هفتاد و پنج."
+      },
+      {
+        "speaker": "Léa",
+        "fr": "Merci. Ah, je vois : le technicien n'a pas trouvé l'adresse, et il n'a pas pu entrer dans la résidence.",
+        "tr": "ممنون. آه، می‌بینم: تکنسین آدرس را پیدا نکرد و نتوانست وارد ساختمان شود."
+      },
+      {
+        "speaker": "Sara",
+        "fr": "Mais il n'a pas téléphoné ! Et je n'ai pas encore reçu la box.",
+        "tr": "ولی تلفن هم نکرد! و من هنوز مودم را دریافت نکرده‌ام."
+      },
+      {
+        "speaker": "Léa",
+        "fr": "La box est partie hier, vous allez recevoir le colis demain. Pour le technicien, vendredi à quatorze heures, ça vous va ?",
+        "tr": "مودم دیروز ارسال شد، فردا بسته را دریافت می‌کنید. برای تکنسین، جمعه ساعت چهارده (۲ بعدازظهر) برایتان مناسب است؟"
+      },
+      {
+        "speaker": "Sara",
+        "fr": "Vendredi, c'est parfait. Le code de la porte, c'est mille deux cent douze.",
+        "tr": "جمعه عالی است. رمز در ورودی هزار و دویست و دوازده است."
+      },
+      {
+        "speaker": "Léa",
+        "fr": "C'est noté. Et ce mois-ci, vous ne payez pas l'abonnement. Bonne journée !",
+        "tr": "یادداشت شد. و این ماه هزینهٔ اشتراک را نمی‌پردازید. روز خوبی داشته باشید!"
+      },
+      {
+        "speaker": "Sara",
+        "fr": "Merci beaucoup, au revoir !",
+        "tr": "خیلی ممنون، خداحافظ!"
+      }
+    ]
+  },
+  "numbers": [
+    {
+      "n": 112,
+      "fr": "cent douze",
+      "hint": "سان دوز"
+    },
+    {
+      "n": 230,
+      "fr": "deux cent trente",
+      "hint": "دُ سان ترانت"
+    },
+    {
+      "n": 365,
+      "fr": "trois cent soixante-cinq",
+      "hint": "تروا سان سواسانت سَنک"
+    },
+    {
+      "n": 418,
+      "fr": "quatre cent dix-huit",
+      "hint": "کاتر سان دیز‌ویت"
+    },
+    {
+      "n": 571,
+      "fr": "cinq cent soixante et onze",
+      "hint": "سَنک سان سواسانت اِ اُنز"
+    },
+    {
+      "n": 690,
+      "fr": "six cent quatre-vingt-dix",
+      "hint": "سی سان کاتر‌وَن‌دیس"
+    },
+    {
+      "n": 875,
+      "fr": "huit cent soixante-quinze",
+      "hint": "ویت سان سواسانت کَنز"
+    },
+    {
+      "n": 981,
+      "fr": "neuf cent quatre-vingt-un",
+      "hint": "نُف سان کاتر‌وَن‌اَن"
+    },
+    {
+      "n": 1012,
+      "fr": "mille douze",
+      "hint": "میل دوز"
+    },
+    {
+      "n": 1212,
+      "fr": "mille deux cent douze",
+      "hint": "میل دُ سان دوز"
+    },
+    {
+      "n": 1250,
+      "fr": "mille deux cent cinquante",
+      "hint": "میل دُ سان سَنکانت"
+    }
+  ],
+  "quiz": [
+    {
+      "type": "vocab",
+      "q": "«la facture» یعنی چه؟",
+      "options": [
+        "کنتور",
+        "صورت‌حساب، قبض",
+        "قرارداد",
+        "مودم اینترنت"
+      ],
+      "answer": 1,
+      "explain": "«la facture» = صورت‌حساب یا قبض (مثلاً la facture d'électricité). قرارداد = «le contrat»."
+    },
+    {
+      "type": "vocab",
+      "q": "کدام کلمه یعنی «کنتور»؟",
+      "options": [
+        "l'abonnement",
+        "le fournisseur",
+        "le compteur",
+        "le contrat"
+      ],
+      "answer": 2,
+      "explain": "«le compteur» = کنتور (برق، آب، گاز). «le fournisseur» شرکتی است که برق یا اینترنت را ارائه می‌دهد."
+    },
+    {
+      "type": "vocab",
+      "q": "جمله را کامل کنید:",
+      "fr": "J'ai pris un ___ avec le technicien pour mardi.",
+      "options": [
+        "rendez-vous",
+        "fournisseur",
+        "contrat",
+        "compteur"
+      ],
+      "answer": 0,
+      "explain": "«prendre rendez-vous» = وقت گرفتن. J'ai pris un rendez-vous = یک وقت گرفتم."
+    },
+    {
+      "type": "vocab",
+      "q": "کلمهٔ مرور: «le syndic» کیست؟",
+      "options": [
+        "همسایه",
+        "تکنسین",
+        "سرایدار",
+        "شرکت مدیریت ساختمان"
+      ],
+      "answer": 3,
+      "explain": "«le syndic» شرکتی است که ساختمان را مدیریت می‌کند (مثلاً Foncia). سرایدار = «le gardien / la gardienne»."
+    },
+    {
+      "type": "grammar",
+      "q": "شکل درست منفی را انتخاب کنید:",
+      "fr": "Je ___ la facture.",
+      "options": [
+        "pas ai reçu",
+        "n'ai pas reçu",
+        "ne pas ai reçu",
+        "n'ai reçu pas"
+      ],
+      "answer": 1,
+      "explain": "«ne … pas» دور فعل کمکی می‌آید: n' + ai + pas + reçu. اسم مفعول بعد از «pas» است."
+    },
+    {
+      "type": "grammar",
+      "q": "شکل درست را انتخاب کنید:",
+      "fr": "La technicienne n'est pas ___.",
+      "options": [
+        "venu",
+        "venus",
+        "venue",
+        "venir"
+      ],
+      "answer": 2,
+      "explain": "«venir» با être صرف می‌شود، پس اسم مفعول با فاعل مطابقت می‌کند — حتی در جملهٔ منفی: la technicienne (مؤنث) ← venue."
+    },
+    {
+      "type": "grammar",
+      "q": "این جمله را منفی کنید: «Ils sont restés à la maison.»",
+      "fr": "Ils ___ restés à la maison.",
+      "options": [
+        "ne pas sont",
+        "n'ont pas",
+        "ne sont pas",
+        "ne sont"
+      ],
+      "answer": 2,
+      "explain": "«rester» با être است: ils ne sont pas restés. «ne» و «pas» هر دو لازم‌اند و دور «sont» می‌آیند."
+    },
+    {
+      "type": "grammar",
+      "q": "«سارا از قرارداد هیچ چیز نفهمید.»",
+      "fr": "Sara n'a ___ compris au contrat.",
+      "options": [
+        "pas rien",
+        "personne",
+        "ne rien",
+        "rien"
+      ],
+      "answer": 3,
+      "explain": "«ne … rien» = هیچ چیز. «rien» جای «pas» را می‌گیرد و قبل از اسم مفعول می‌آید: n'a rien compris. «pas rien» غلط است."
+    },
+    {
+      "type": "grammar",
+      "q": "«هنوز مودم را دریافت نکرده‌ام.» کدام درست است؟",
+      "options": [
+        "Je ne suis pas encore reçu la box.",
+        "Je n'ai reçu pas encore la box.",
+        "Je n'ai encore pas reçu la box.",
+        "Je n'ai pas encore reçu la box."
+      ],
+      "answer": 3,
+      "explain": "«pas encore» = هنوز نه، و مستقیم بعد از فعل کمکی می‌آید. «recevoir» با avoir صرف می‌شود."
+    },
+    {
+      "type": "grammar",
+      "q": "مرور (اسم مفعول بی‌قاعده):",
+      "fr": "Elle n'a pas ___ le contrat avec elle.",
+      "options": [
+        "pris",
+        "prendu",
+        "prise",
+        "prené"
+      ],
+      "answer": 0,
+      "explain": "«prendre» ← «pris» (هرگز prendu نیست). با avoir، اسم مفعول با فاعل مطابقت نمی‌کند، پس «prise» غلط است."
+    },
+    {
+      "type": "grammar",
+      "q": "مرور (اسم مفعول بی‌قاعده):",
+      "fr": "Tu n'as pas ___ ma lettre ?",
+      "options": [
+        "recevé",
+        "reçu",
+        "recevu",
+        "reçue"
+      ],
+      "answer": 1,
+      "explain": "«recevoir» ← «reçu» (با ç). با avoir مطابقت با فاعل نداریم: tu as reçu."
+    },
+    {
+      "type": "grammar",
+      "q": "مرور: avoir یا être؟ (فعل مفعول دارد)",
+      "fr": "Le technicien ___ la box au deuxième étage.",
+      "options": [
+        "est monté",
+        "est montée",
+        "a monté",
+        "a montée"
+      ],
+      "answer": 2,
+      "explain": "وقتی «monter» مفعول مستقیم دارد (la box = چیزی را بالا بردن)، با avoir صرف می‌شود: il a monté la box. بدون مفعول: il est monté."
+    },
+    {
+      "type": "reading",
+      "q": "چرا سارا هنوز اینترنت ندارد؟",
+      "options": [
+        "او قرارداد را امضا نکرده است",
+        "تکنسین نیامد و مودم هنوز نرسیده است",
+        "برق ساختمان قطع است",
+        "صندوق پستش خراب است"
+      ],
+      "answer": 1,
+      "explain": "خط ۳ و ۴: «le technicien n'est pas venu» و «Sara n'a pas encore reçu la box»."
+    },
+    {
+      "type": "conversation",
+      "q": "چرا تکنسین نیامد؟",
+      "options": [
+        "ماشینش خراب شد",
+        "سارا وقت را لغو کرد",
+        "آدرس را پیدا نکرد و نتوانست وارد ساختمان شود",
+        "بیمار بود"
+      ],
+      "answer": 2,
+      "explain": "«le technicien n'a pas trouvé l'adresse, et il n'a pas pu entrer dans la résidence». pouvoir ← pu."
+    },
+    {
+      "type": "conversation",
+      "q": "تکنسین کی دوباره می‌آید؟",
+      "options": [
+        "جمعه ساعت ۱۴",
+        "دوشنبه ساعت ۱۴",
+        "فردا صبح",
+        "جمعه ساعت ۱۰"
+      ],
+      "answer": 0,
+      "explain": "«vendredi à quatorze heures» = جمعه ساعت ۱۴ (۲ بعدازظهر). فردا فقط مودم (le colis) می‌رسد."
+    },
+    {
+      "type": "numbers",
+      "q": "گوش کنید و عددی را که می‌شنوید انتخاب کنید.",
+      "fr": "huit cent soixante-quinze",
+      "listen": true,
+      "options": [
+        "875",
+        "865",
+        "835",
+        "8 075"
+      ],
+      "answer": 0,
+      "explain": "huit cents (800) + soixante-quinze (60 + 15 = 75) = 875."
+    },
+    {
+      "type": "numbers",
+      "q": "عدد ۵۷۱ به فرانسوی چه می‌شود؟",
+      "options": [
+        "cinq cent soixante-un",
+        "cinq cents soixante et onze",
+        "cinq cent soixante et onze",
+        "cinq cent septante et un"
+      ],
+      "answer": 2,
+      "explain": "71 = soixante et onze (60 + 11). «cent» وقتی عدد دیگری بعدش بیاید -s نمی‌گیرد."
+    },
+    {
+      "type": "numbers",
+      "q": "گوش کنید و عددی را که می‌شنوید انتخاب کنید.",
+      "fr": "mille deux cent douze",
+      "listen": true,
+      "options": [
+        "1 012",
+        "2 212",
+        "1 202",
+        "1 212"
+      ],
+      "answer": 3,
+      "explain": "mille (1000) + deux cent (200) + douze (12) = 1 212. «mille» هیچ‌وقت -s نمی‌گیرد."
+    }
+  ]
+}/*LESSON_DATA_END*/;
+</script>
+<script src="../assets/lesson.js"></script>
+</body>
+</html>

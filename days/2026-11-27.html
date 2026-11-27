@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leçon de français</title>
+<link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+<script>
+/* ==========================================================================
+   LESSON DATA — the teacher replaces ONLY the object between the markers.
+   All texts for the learner (tr, intro, rules, notes, quiz questions, explanations)
+   are written in ONE help language, given in `lang`.
+   Schema:
+   {
+     day: Number, date: "YYYY-MM-DD", week: Number,
+     lang: "en" | "sv" | "fa",                        // today's help language (chosen at random)
+     theme: { fr: String, tr: String },
+     words: [ { fr, tr, example, example_tr, review?: true } ],        // 10–14 items
+     grammar: {
+       title: String,                                 // in French, e.g. "Le passé composé : avoir ou être ?"
+       intro: String,                                 // 1–2 sentences: what it is, when to use it
+       rules: [String],                               // 2–5 short rules, each with a French mini-example
+       table?: { caption?: String, headers: [String], rows: [[String]] },  // conjugation/forms (French)
+       examples: [ { fr, tr, note? } ],               // 3–5 example sentences; note = why (short)
+       watch_out?: { wrong, right, why }              // one typical mistake (French wrong/right)
+     },
+     reading: { title: String, lines: [ { fr, tr } ] },                 // exactly 5 short sentences
+     comprehension: {                                                   // reading comprehension
+       title: String,                                 // French title
+       kind: String,                                  // e.g. "Petite histoire", "Le saviez-vous ?", "Un e-mail", "Une annonce"
+       text: [String],                                // 6–10 simple French sentences
+       text_tr: String,                               // full translation (help language), hidden until clicked
+       questions: [ { q, options, answer, explain } ] // 4–5 questions: q + options in simple French, explain in help language
+     },
+     news: [ {                                                          // 1–3 REAL news items (or [] if none found)
+       title: String, title_tr: String,               // French headline + translation
+       place: String, date?: "YYYY-MM-DD",            // e.g. "Nice", "Antibes", "France"
+       lines: [ { fr, tr } ],                         // 2–4 simple French sentences, own words
+       source: { name: String, url: String }          // where the news comes from
+     } ],
+     conversation: { title: String, situation: String,
+                     lines: [ { speaker, fr, tr } ] },                  // 6–10 lines
+     numbers: [ { n: Number, fr: String, hint: String } ],              // 8–12 items
+     quiz: [ {                                                          // 10–20 questions
+       type: "vocab" | "grammar" | "reading" | "conversation" | "numbers",
+       q: String,              // the question (help language)
+       fr?: String,            // optional French sentence shown with a 🔊 button
+       listen?: true,          // if true, fr is NOT shown — only played (listening question)
+       options: [String],      // 3–4 options
+       answer: Number,         // index of the correct option in `options` (0-based)
+       explain: String         // short explanation (help language)
+     } ]
+   }
+   ========================================================================== */
+const LESSON = /*LESSON_DATA_START*/{
+  "day": 4,
+  "date": "2026-11-27",
+  "week": 1,
+  "lang": "sv",
+  "theme": {
+    "fr": "Découvrir le quartier",
+    "tr": "Att upptäcka kvarteret"
+  },
+  "words": [
+    {
+      "fr": "la boulangerie",
+      "tr": "bageri",
+      "example": "La boulangerie ouvre à sept heures.",
+      "example_tr": "Bageriet öppnar klockan sju."
+    },
+    {
+      "fr": "la pharmacie",
+      "tr": "apotek",
+      "example": "Il y a une pharmacie au bout de la rue.",
+      "example_tr": "Det finns ett apotek i slutet av gatan."
+    },
+    {
+      "fr": "le bureau de tabac",
+      "tr": "tobaksaffär (säljer också tidningar, frimärken, busskort)",
+      "example": "J'ai acheté des timbres au bureau de tabac.",
+      "example_tr": "Jag köpte frimärken i tobaksaffären."
+    },
+    {
+      "fr": "la place",
+      "tr": "torg",
+      "example": "Le marché est sur la place, le samedi matin.",
+      "example_tr": "Marknaden är på torget på lördagsmorgonen."
+    },
+    {
+      "fr": "la rue",
+      "tr": "gata",
+      "example": "J'habite dans une petite rue calme.",
+      "example_tr": "Jag bor på en liten lugn gata."
+    },
+    {
+      "fr": "au coin de",
+      "tr": "i hörnet av",
+      "example": "Le café est au coin de la rue.",
+      "example_tr": "Kaféet ligger i hörnet av gatan."
+    },
+    {
+      "fr": "l'arrêt de bus (m)",
+      "tr": "busshållplats",
+      "example": "L'arrêt de bus est juste devant la pharmacie.",
+      "example_tr": "Busshållplatsen ligger precis framför apoteket."
+    },
+    {
+      "fr": "se promener",
+      "tr": "promenera, ta en promenad",
+      "example": "Le dimanche, je me promène sur les remparts.",
+      "example_tr": "På söndagar promenerar jag på stadsmuren."
+    },
+    {
+      "fr": "se perdre",
+      "tr": "gå vilse",
+      "example": "Elle s'est perdue dans la vieille ville.",
+      "example_tr": "Hon gick vilse i gamla stan."
+    },
+    {
+      "fr": "se renseigner",
+      "tr": "ta reda på, fråga om information",
+      "example": "Je me suis renseigné à l'office de tourisme.",
+      "example_tr": "Jag frågade om information på turistbyrån."
+    },
+    {
+      "fr": "le déménagement",
+      "tr": "flytten",
+      "example": "Après le déménagement, j'ai visité le quartier.",
+      "example_tr": "Efter flytten besökte jag kvarteret.",
+      "review": true
+    },
+    {
+      "fr": "emménager",
+      "tr": "flytta in",
+      "example": "Mes voisins ont emménagé la semaine dernière.",
+      "example_tr": "Mina grannar flyttade in förra veckan.",
+      "review": true
+    },
+    {
+      "fr": "s'installer",
+      "tr": "installera sig, komma i ordning",
+      "example": "Nous nous sommes bien installés à Antibes.",
+      "example_tr": "Vi har kommit i ordning bra i Antibes.",
+      "review": true
+    },
+    {
+      "fr": "le gardien / la gardienne",
+      "tr": "fastighetsskötare",
+      "example": "Le gardien m'a montré la boulangerie la plus proche.",
+      "example_tr": "Fastighetsskötaren visade mig det närmaste bageriet.",
+      "review": true
+    }
+  ],
+  "grammar": {
+    "title": "Les verbes pronominaux au passé composé",
+    "intro": "Reflexiva verb (se promener, se perdre, s'installer…) bildar alltid passé composé med « être ». Participet böjs efter subjektet, precis som med aller, venir, arriver…",
+    "rules": [
+      "Alla reflexiva verb tar « être » : je me suis promené(e), nous nous sommes perdu(e)s.",
+      "Pronomenet (me, te, se, nous, vous) står före « être » : elle s'est renseignée.",
+      "Participet böjs efter subjektet : + e (femininum), + s (plural), + es (femininum plural) : elles se sont installées.",
+      "Negation : « ne » före pronomenet, « pas » efter « être » : je ne me suis pas perdu.",
+      "Me, te, se blir m', t', s' före vokal eller « être » : tu t'es promené, il s'est perdu."
+    ],
+    "table": {
+      "caption": "se promener i passé composé",
+      "headers": [
+        "",
+        "se promener",
+        "negation"
+      ],
+      "rows": [
+        [
+          "je",
+          "me suis promené(e)",
+          "ne me suis pas promené(e)"
+        ],
+        [
+          "tu",
+          "t'es promené(e)",
+          "ne t'es pas promené(e)"
+        ],
+        [
+          "il / elle",
+          "s'est promené / promenée",
+          "ne s'est pas promené(e)"
+        ],
+        [
+          "nous",
+          "nous sommes promené(e)s",
+          "ne nous sommes pas promené(e)s"
+        ],
+        [
+          "vous",
+          "vous êtes promené(e)(s)",
+          "ne vous êtes pas promené(e)(s)"
+        ],
+        [
+          "ils / elles",
+          "se sont promenés / promenées",
+          "ne se sont pas promené(e)s"
+        ]
+      ]
+    },
+    "examples": [
+      {
+        "fr": "Hier, je me suis promené dans la vieille ville.",
+        "tr": "I går promenerade jag i gamla stan.",
+        "note": "reflexivt verb → être · subjektet är en man → ingen ändelse"
+      },
+      {
+        "fr": "Marie s'est perdue près du port.",
+        "tr": "Marie gick vilse nära hamnen.",
+        "note": "Marie = femininum → perdue (+ e)"
+      },
+      {
+        "fr": "Nous nous sommes renseignés à la mairie.",
+        "tr": "Vi frågade om information på kommunkontoret.",
+        "note": "nous (män eller blandat) → renseignés (+ s)"
+      },
+      {
+        "fr": "Mes voisines se sont installées en octobre.",
+        "tr": "Mina grannar (kvinnor) flyttade in i oktober.",
+        "note": "femininum plural → installées (+ es)"
+      },
+      {
+        "fr": "Tu ne t'es pas levé tôt ce matin ?",
+        "tr": "Gick du inte upp tidigt i morse?",
+        "note": "negation: ne + t'es + pas + particip"
+      }
+    ],
+    "watch_out": {
+      "wrong": "Elle s'a promenée dans le quartier.",
+      "right": "Elle s'est promenée dans le quartier.",
+      "why": "Reflexiva verb tar aldrig « avoir » i passé composé – alltid « être »."
+    }
+  },
+  "reading": {
+    "title": "Samedi matin dans le quartier",
+    "lines": [
+      {
+        "fr": "Samedi, Lina s'est levée tôt pour découvrir son nouveau quartier.",
+        "tr": "I lördags gick Lina upp tidigt för att upptäcka sitt nya kvarter."
+      },
+      {
+        "fr": "Elle a acheté un croissant à la boulangerie, au coin de la rue.",
+        "tr": "Hon köpte en croissant på bageriet i hörnet av gatan."
+      },
+      {
+        "fr": "Ensuite, elle s'est promenée jusqu'à la place du marché.",
+        "tr": "Sedan promenerade hon ända till torget där marknaden är."
+      },
+      {
+        "fr": "Dans les petites rues de la vieille ville, elle s'est perdue !",
+        "tr": "På de små gatorna i gamla stan gick hon vilse!"
+      },
+      {
+        "fr": "Heureusement, le pharmacien lui a montré l'arrêt de bus.",
+        "tr": "Som tur var visade apotekaren henne busshållplatsen."
+      }
+    ]
+  },
+  "comprehension": {
+    "title": "Antibes et ses remparts",
+    "kind": "Le saviez-vous ?",
+    "text": [
+      "Antibes est une très vieille ville.",
+      "Les Grecs l'ont fondée il y a plus de deux mille ans.",
+      "Ils l'ont appelée Antipolis, « la ville d'en face ».",
+      "En face, il y a Nice, de l'autre côté de la baie.",
+      "Dans la vieille ville, on peut se promener sur les remparts, au bord de la mer.",
+      "Le musée Picasso est dans le château Grimaldi, juste à côté.",
+      "Picasso a travaillé dans ce château en 1946.",
+      "Aujourd'hui, beaucoup de touristes et d'habitants aiment se promener dans ce quartier."
+    ],
+    "text_tr": "Antibes är en mycket gammal stad. Grekerna grundade den för mer än två tusen år sedan. De kallade den Antipolis, ”staden mittemot”. Mittemot ligger Nice, på andra sidan bukten. I gamla stan kan man promenera på stadsmuren vid havet. Picassomuseet ligger i slottet Grimaldi, precis bredvid. Picasso arbetade i det här slottet 1946. I dag tycker många turister och invånare om att promenera i det här kvarteret.",
+    "questions": [
+      {
+        "q": "Qui a fondé Antibes ?",
+        "options": [
+          "Les Romains",
+          "Les Grecs",
+          "Picasso",
+          "Les habitants de Nice"
+        ],
+        "answer": 1,
+        "explain": "Mening 2: « Les Grecs l'ont fondée il y a plus de deux mille ans. »"
+      },
+      {
+        "q": "Que veut dire « Antipolis » ?",
+        "options": [
+          "La ville d'en face",
+          "La vieille ville",
+          "La ville de la mer",
+          "La ville du château"
+        ],
+        "answer": 0,
+        "explain": "Mening 3: « Antipolis, ‹ la ville d'en face › »."
+      },
+      {
+        "q": "Quelle ville est en face d'Antibes, de l'autre côté de la baie ?",
+        "options": [
+          "Cannes",
+          "Monaco",
+          "Nice",
+          "Marseille"
+        ],
+        "answer": 2,
+        "explain": "Mening 4: « En face, il y a Nice, de l'autre côté de la baie. »"
+      },
+      {
+        "q": "Où est le musée Picasso ?",
+        "options": [
+          "Sur la place du marché",
+          "Dans une boulangerie",
+          "Sur les remparts",
+          "Dans le château Grimaldi"
+        ],
+        "answer": 3,
+        "explain": "Mening 6: « Le musée Picasso est dans le château Grimaldi. »"
+      },
+      {
+        "q": "Quand Picasso a-t-il travaillé dans le château ?",
+        "options": [
+          "En 1946",
+          "En 1964",
+          "En 1916",
+          "Il y a deux mille ans"
+        ],
+        "answer": 0,
+        "explain": "Mening 7: « Picasso a travaillé dans ce château en 1946. » (mille neuf cent quarante-six)"
+      }
+    ]
+  },
+  "news": [
+    {
+      "title": "Cannes : un village de Noël et une patinoire en plein air",
+      "title_tr": "Cannes: en julby och en utomhusisbana",
+      "place": "Cannes",
+      "date": "2026-11-26",
+      "lines": [
+        {
+          "fr": "À Cannes, les fêtes de Noël commencent ce week-end, près des allées de la Liberté et du cours Félix-Faure.",
+          "tr": "I Cannes börjar julfirandet den här helgen, nära allées de la Liberté och cours Félix-Faure."
+        },
+        {
+          "fr": "Il y a 66 chalets et une patinoire de 360 mètres carrés.",
+          "tr": "Det finns 66 julbodar och en isbana på 360 kvadratmeter."
+        },
+        {
+          "fr": "Une séance de patin dure 45 minutes et coûte 5 euros, patins compris.",
+          "tr": "Ett pass på isbanan är 45 minuter och kostar 5 euro, skridskor ingår."
+        },
+        {
+          "fr": "L'inauguration a lieu le vendredi 27 novembre à 18 h 30, et le village reste ouvert jusqu'au 3 janvier.",
+          "tr": "Invigningen är fredagen den 27 november kl. 18.30, och julbyn är öppen till den 3 januari."
+        }
+      ],
+      "source": {
+        "name": "Red Zing Radio — Que faire sur la Côte d'Azur du 27/11 au 6/12/26",
+        "url": "https://redzingradio.com/2026/11/26/que-faire-sur-la-cote-dazur-du-27-11-au-6-12-26"
+      }
+    },
+    {
+      "title": "Antibes : des photos de Claude Picasso au musée Picasso",
+      "title_tr": "Antibes: foton av Claude Picasso på Picassomuseet",
+      "place": "Antibes",
+      "date": "2026-11-26",
+      "lines": [
+        {
+          "fr": "Le musée Picasso d'Antibes présente l'exposition « Claude Picasso, une vie en marges ».",
+          "tr": "Picassomuseet i Antibes visar utställningen ”Claude Picasso, une vie en marges”."
+        },
+        {
+          "fr": "On peut y voir les photos de Claude Picasso : des portraits, des compositions et des images pour des magazines.",
+          "tr": "Där kan man se Claude Picassos foton: porträtt, kompositioner och bilder för tidningar."
+        },
+        {
+          "fr": "L'exposition est ouverte jusqu'au 10 janvier 2027.",
+          "tr": "Utställningen är öppen till den 10 januari 2027."
+        }
+      ],
+      "source": {
+        "name": "Red Zing Radio — Que faire sur la Côte d'Azur du 27/11 au 6/12/26",
+        "url": "https://redzingradio.com/2026/11/26/que-faire-sur-la-cote-dazur-du-27-11-au-6-12-26"
+      }
+    }
+  ],
+  "conversation": {
+    "title": "Où est la pharmacie ?",
+    "situation": "Karim har just flyttat in. Han träffar sin granne Mme Lefèvre vid busshållplatsen och frågar om vägen.",
+    "lines": [
+      {
+        "speaker": "Karim",
+        "fr": "Bonjour madame ! Excusez-moi, je cherche une pharmacie.",
+        "tr": "God dag! Ursäkta, jag letar efter ett apotek."
+      },
+      {
+        "speaker": "Mme Lefèvre",
+        "fr": "Bonjour ! Il y en a une sur la place, à cinq minutes à pied.",
+        "tr": "God dag! Det finns ett på torget, fem minuter till fots."
+      },
+      {
+        "speaker": "Karim",
+        "fr": "Merci. Je suis nouveau, j'ai emménagé lundi au troisième étage.",
+        "tr": "Tack. Jag är ny, jag flyttade in i måndags på tredje våningen."
+      },
+      {
+        "speaker": "Mme Lefèvre",
+        "fr": "Ah, bienvenue ! Vous vous êtes bien installé ?",
+        "tr": "Å, välkommen! Har du kommit i ordning ordentligt?"
+      },
+      {
+        "speaker": "Karim",
+        "fr": "Oui, mais hier je me suis perdu dans la vieille ville !",
+        "tr": "Ja, men i går gick jag vilse i gamla stan!"
+      },
+      {
+        "speaker": "Mme Lefèvre",
+        "fr": "C'est normal, les rues sont petites. Moi aussi, je me suis perdue la première fois.",
+        "tr": "Det är normalt, gatorna är små. Jag gick också vilse första gången."
+      },
+      {
+        "speaker": "Karim",
+        "fr": "Et le bureau de tabac, il est où ?",
+        "tr": "Och tobaksaffären, var ligger den?"
+      },
+      {
+        "speaker": "Mme Lefèvre",
+        "fr": "Au coin de la rue, à côté de la boulangerie. Ils vendent aussi les tickets de bus.",
+        "tr": "I hörnet av gatan, bredvid bageriet. De säljer också bussbiljetter."
+      }
+    ]
+  },
+  "numbers": [
+    {
+      "n": 170,
+      "fr": "cent soixante-dix",
+      "hint": "san swasant-diss (60 + 10)"
+    },
+    {
+      "n": 180,
+      "fr": "cent quatre-vingts",
+      "hint": "san katr-vä (4 × 20)"
+    },
+    {
+      "n": 199,
+      "fr": "cent quatre-vingt-dix-neuf",
+      "hint": "san katr-vä-dis-nöff (4 × 20 + 19)"
+    },
+    {
+      "n": 260,
+      "fr": "deux cent soixante",
+      "hint": "dö san swasant"
+    },
+    {
+      "n": 381,
+      "fr": "trois cent quatre-vingt-un",
+      "hint": "trwa san katr-vä-äng (inget « et »)"
+    },
+    {
+      "n": 471,
+      "fr": "quatre cent soixante et onze",
+      "hint": "katr san swasant e ons (60 + 11)"
+    },
+    {
+      "n": 500,
+      "fr": "cinq cents",
+      "hint": "säng san (cents får -s när inget följer)"
+    },
+    {
+      "n": 692,
+      "fr": "six cent quatre-vingt-douze",
+      "hint": "si san katr-vä-dos (80 + 12)"
+    },
+    {
+      "n": 777,
+      "fr": "sept cent soixante-dix-sept",
+      "hint": "sett san swasant-dis-sett (60 + 17)"
+    },
+    {
+      "n": 950,
+      "fr": "neuf cent cinquante",
+      "hint": "nöff san sängkant"
+    },
+    {
+      "n": 1080,
+      "fr": "mille quatre-vingts",
+      "hint": "mill katr-vä"
+    },
+    {
+      "n": 1250,
+      "fr": "mille deux cent cinquante",
+      "hint": "mill dö san sängkant"
+    }
+  ],
+  "quiz": [
+    {
+      "type": "vocab",
+      "q": "Var köper man bröd och croissanter?",
+      "options": [
+        "à la pharmacie",
+        "à la boulangerie",
+        "au bureau de tabac",
+        "à l'arrêt de bus"
+      ],
+      "answer": 1,
+      "explain": "la boulangerie = bageri. På apoteket (la pharmacie) köper man medicin."
+    },
+    {
+      "type": "vocab",
+      "q": "Var kan man köpa frimärken och bussbiljetter i Frankrike?",
+      "options": [
+        "à la boulangerie",
+        "sur la place",
+        "au bureau de tabac",
+        "à la cave"
+      ],
+      "answer": 2,
+      "explain": "Le bureau de tabac (le tabac) säljer tidningar, frimärken och ofta bussbiljetter."
+    },
+    {
+      "type": "vocab",
+      "q": "Vad betyder « se perdre » ?",
+      "options": [
+        "ta en promenad",
+        "gå vilse",
+        "flytta in",
+        "fråga om information"
+      ],
+      "answer": 1,
+      "explain": "se perdre = gå vilse. se promener = promenera, se renseigner = fråga om information."
+    },
+    {
+      "type": "vocab",
+      "q": "« Le café est ___ de la rue. » (i hörnet av)",
+      "fr": "Le café est ___ de la rue.",
+      "options": [
+        "au coin",
+        "à la coin",
+        "au place",
+        "en coin"
+      ],
+      "answer": 0,
+      "explain": "le coin är maskulinum: à + le = au → au coin de la rue."
+    },
+    {
+      "type": "vocab",
+      "q": "Repetition: vad betyder « emménager » ?",
+      "options": [
+        "flytta ut",
+        "flytta in",
+        "städa",
+        "möblera"
+      ],
+      "answer": 1,
+      "explain": "emménager = flytta in (i en ny bostad). Le déménagement = flytten."
+    },
+    {
+      "type": "grammar",
+      "q": "Välj rätt hjälpverb.",
+      "fr": "Hier, je ___ promené sur les remparts.",
+      "options": [
+        "m'ai",
+        "me suis",
+        "me sont",
+        "ai"
+      ],
+      "answer": 1,
+      "explain": "Reflexiva verb tar alltid « être »: je me suis promené."
+    },
+    {
+      "type": "grammar",
+      "q": "Välj rätt form av participet (subjektet är en kvinna).",
+      "fr": "Marie s'est ___ dans la vieille ville.",
+      "options": [
+        "perdu",
+        "perdus",
+        "perdue",
+        "perdé"
+      ],
+      "answer": 2,
+      "explain": "Med être böjs participet efter subjektet: Marie = femininum → perdue (+ e)."
+    },
+    {
+      "type": "grammar",
+      "q": "Välj rätt form (« elles » = flera kvinnor).",
+      "fr": "Mes voisines se sont ___ en octobre.",
+      "options": [
+        "installé",
+        "installés",
+        "installée",
+        "installées"
+      ],
+      "answer": 3,
+      "explain": "Femininum plural → + es: elles se sont installées."
+    },
+    {
+      "type": "grammar",
+      "q": "Var står negationen? Välj den korrekta meningen.",
+      "options": [
+        "Je me ne suis pas perdu.",
+        "Je ne me suis pas perdu.",
+        "Je ne suis pas me perdu.",
+        "Je ne me suis perdu pas."
+      ],
+      "answer": 1,
+      "explain": "« ne » före pronomenet, « pas » efter « être »: je ne me suis pas perdu."
+    },
+    {
+      "type": "grammar",
+      "q": "Repetition (oregelbundet particip): välj rätt form.",
+      "fr": "Nous avons ___ le bus pour aller au port.",
+      "options": [
+        "prendu",
+        "pris",
+        "prenu",
+        "prit"
+      ],
+      "answer": 1,
+      "explain": "prendre → pris (oregelbundet). Jämför: recevoir → reçu, mettre → mis."
+    },
+    {
+      "type": "grammar",
+      "q": "Repetition: « monter » med ett objekt (les courses). Välj rätt hjälpverb.",
+      "fr": "Le gardien ___ monté les courses de madame Roche.",
+      "options": [
+        "est",
+        "a",
+        "s'est",
+        "sont"
+      ],
+      "answer": 1,
+      "explain": "monter + direkt objekt (les courses) → avoir: il a monté les courses. Utan objekt: il est monté."
+    },
+    {
+      "type": "reading",
+      "q": "Läsning: vad gjorde Lina i de små gatorna i gamla stan?",
+      "options": [
+        "Hon köpte en croissant.",
+        "Hon gick vilse.",
+        "Hon tog bussen.",
+        "Hon träffade fastighetsskötaren."
+      ],
+      "answer": 1,
+      "explain": "« Dans les petites rues de la vieille ville, elle s'est perdue ! »"
+    },
+    {
+      "type": "reading",
+      "q": "Läsning: vem visade Lina busshållplatsen?",
+      "options": [
+        "bagaren",
+        "en granne",
+        "apotekaren",
+        "fastighetsskötaren"
+      ],
+      "answer": 2,
+      "explain": "« Heureusement, le pharmacien lui a montré l'arrêt de bus. » le pharmacien = apotekaren."
+    },
+    {
+      "type": "conversation",
+      "q": "Dialog: hur långt bort är apoteket?",
+      "options": [
+        "två minuter med bil",
+        "fem minuter till fots",
+        "femton minuter med buss",
+        "i hörnet av gatan"
+      ],
+      "answer": 1,
+      "explain": "« Il y en a une sur la place, à cinq minutes à pied. » à pied = till fots."
+    },
+    {
+      "type": "conversation",
+      "q": "Dialog: varför säger Mme Lefèvre « je me suis perdue » med -e?",
+      "options": [
+        "För att « la vieille ville » är femininum.",
+        "För att hon är en kvinna.",
+        "För att verbet tar avoir.",
+        "För att det är plural."
+      ],
+      "answer": 1,
+      "explain": "Med être böjs participet efter subjektet. Subjektet « je » är här en kvinna → perdue."
+    },
+    {
+      "type": "conversation",
+      "q": "Dialog: vad säljer tobaksaffären också, enligt Mme Lefèvre?",
+      "options": [
+        "bröd",
+        "medicin",
+        "bussbiljetter",
+        "möbler"
+      ],
+      "answer": 2,
+      "explain": "« Ils vendent aussi les tickets de bus. »"
+    },
+    {
+      "type": "numbers",
+      "q": "Lyssna och välj talet du hör.",
+      "fr": "six cent quatre-vingt-douze",
+      "listen": true,
+      "options": [
+        "672",
+        "692",
+        "482",
+        "612"
+      ],
+      "answer": 1,
+      "explain": "six cents (600) + quatre-vingt-douze (4 × 20 + 12 = 92) = 692."
+    },
+    {
+      "type": "numbers",
+      "q": "Hur säger man 471 på franska?",
+      "options": [
+        "quatre cent soixante-onze",
+        "quatre cents soixante et onze",
+        "quatre cent soixante et onze",
+        "quatre cent septante et un"
+      ],
+      "answer": 2,
+      "explain": "71 = soixante et onze (60 + 11). « cent » får inget -s när ett annat tal följer."
+    }
+  ]
+}/*LESSON_DATA_END*/;
+</script>
+<script src="../assets/lesson.js"></script>
+</body>
+</html>

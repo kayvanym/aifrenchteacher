@@ -2,6 +2,15 @@
 
 Newest entry first. Format: see CLAUDE.md §4.
 
+## Day 4 — 2026-11-27 — Découvrir le quartier (Discovering the neighbourhood)
+- **Type:** daily page
+- **Week / curriculum:** Week 1 — passé composé: reflexive verbs with *être* + agreement (*je me suis promené(e)*, *elles se sont installées*, negation *je ne me suis pas perdu*) — numbers 100–1 250
+- **New words (10):** la boulangerie, la pharmacie, le bureau de tabac, la place, la rue, au coin de, l'arrêt de bus, se promener, se perdre, se renseigner
+- **Reviewed (4):** le déménagement, emménager, s'installer, le gardien / la gardienne
+- **Page:** days/2026-11-27.html (18 quiz questions, help language: Swedish; 2 news items: Cannes Christmas village/ice rink, Claude Picasso exhibition in Antibes)
+- **Results:** no new feedback (no open issues; nothing new in feedback.md). Day 3 results not yet received. Today's quiz repeats irregular participles (Q10 pris) and monter + object (Q11).
+- **Notes / next time:** Day 5: more practice on agreement with *être* (mixed avoir/être verbs, "what did you do this weekend?") — still due: le frigo, the other Day-2 words, the voice-lesson words and the Day-3 words (all box 1).
+
 ## Day 3 — 2026-11-26 — Électricité, eau et internet (Electricity, water and internet)
 - **Type:** daily page
 - **Week / curriculum:** Week 1 — passé composé: negation (*ne … pas / jamais / rien / plus / pas encore*), agreement with *être* in negative sentences — numbers 100–1 250

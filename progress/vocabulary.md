@@ -5,10 +5,6 @@ Keep the table sorted by *Next review* (earliest first).
 
 | French | English | Svenska | فارسی | Box | First seen | Last review | Next review |
 |--------|---------|---------|-------|-----|------------|-------------|-------------|
-| le déménagement | the move (moving house) | flytten | اسباب‌کشی | 1 | 2026-11-24 | 2026-11-24 | 2026-11-25 |
-| emménager | to move in | flytta in | به خانهٔ جدید نقل مکان کردن | 1 | 2026-11-24 | 2026-11-24 | 2026-11-25 |
-| s'installer | to settle in | installera sig | مستقر شدن | 1 | 2026-11-24 | 2026-11-24 | 2026-11-25 |
-| le gardien / la gardienne | caretaker | fastighetsskötare | سرایدار | 1 | 2026-11-24 | 2026-11-24 | 2026-11-25 |
 | le meuble | piece of furniture | möbel | مبل، اثاثیه | 1 | 2026-11-25 | 2026-11-25 | 2026-11-26 |
 | le canapé | sofa | soffa | کاناپه | 1 | 2026-11-25 | 2026-11-25 | 2026-11-26 |
 | le lit | bed | säng | تخت‌خواب | 1 | 2026-11-25 | 2026-11-25 | 2026-11-26 |
@@ -38,7 +34,21 @@ Keep the table sorted by *Next review* (earliest first).
 | la clé | key | nyckel | کلید | 2 | 2026-11-24 | 2026-11-25 | 2026-11-28 |
 | l'étage (m) | floor (storey) | våning | طبقه | 2 | 2026-11-24 | 2026-11-25 | 2026-11-28 |
 | l'ascenseur (m) | lift / elevator | hiss | آسانسور | 2 | 2026-11-24 | 2026-11-25 | 2026-11-28 |
+| la boulangerie | bakery | bageri | نانوایی | 1 | 2026-11-27 | 2026-11-27 | 2026-11-28 |
+| la pharmacie | pharmacy | apotek | داروخانه | 1 | 2026-11-27 | 2026-11-27 | 2026-11-28 |
+| le bureau de tabac | tobacconist (also sells stamps, papers, bus tickets) | tobaksaffär | دکهٔ دخانیات (تمبر، روزنامه، بلیت اتوبوس هم می‌فروشد) | 1 | 2026-11-27 | 2026-11-27 | 2026-11-28 |
+| la place | square (in a town) | torg | میدان | 1 | 2026-11-27 | 2026-11-27 | 2026-11-28 |
+| la rue | street | gata | خیابان | 1 | 2026-11-27 | 2026-11-27 | 2026-11-28 |
+| au coin de | at the corner of | i hörnet av | سرِ نبشِ | 1 | 2026-11-27 | 2026-11-27 | 2026-11-28 |
+| l'arrêt de bus (m) | bus stop | busshållplats | ایستگاه اتوبوس | 1 | 2026-11-27 | 2026-11-27 | 2026-11-28 |
+| se promener | to go for a walk | promenera | قدم زدن | 1 | 2026-11-27 | 2026-11-27 | 2026-11-28 |
+| se perdre | to get lost | gå vilse | گم شدن | 1 | 2026-11-27 | 2026-11-27 | 2026-11-28 |
+| se renseigner | to ask for information, find out | ta reda på, fråga om information | پرس‌وجو کردن، اطلاعات گرفتن | 1 | 2026-11-27 | 2026-11-27 | 2026-11-28 |
 | la boîte aux lettres | mailbox | brevlåda | صندوق پست | 2 | 2026-11-24 | 2026-11-26 | 2026-11-29 |
 | le quartier | neighbourhood | kvarter, område | محله | 2 | 2026-11-24 | 2026-11-26 | 2026-11-29 |
 | les charges (f) | service charges | avgifter | هزینه‌های مشترک ساختمان (شارژ) | 2 | 2026-11-24 | 2026-11-26 | 2026-11-29 |
 | le syndic | building management company | förvaltare | شرکت مدیریت ساختمان | 2 | 2026-11-24 | 2026-11-26 | 2026-11-29 |
+| le déménagement | the move (moving house) | flytten | اسباب‌کشی | 2 | 2026-11-24 | 2026-11-27 | 2026-11-30 |
+| emménager | to move in | flytta in | به خانهٔ جدید نقل مکان کردن | 2 | 2026-11-24 | 2026-11-27 | 2026-11-30 |
+| s'installer | to settle in | installera sig | مستقر شدن | 2 | 2026-11-24 | 2026-11-27 | 2026-11-30 |
+| le gardien / la gardienne | caretaker | fastighetsskötare | سرایدار | 2 | 2026-11-24 | 2026-11-27 | 2026-11-30 |

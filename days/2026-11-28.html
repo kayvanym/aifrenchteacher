@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leçon de français</title>
+<link rel="stylesheet" href="../assets/lesson.css">
+</head>
+<body>
+<script>
+/* ==========================================================================
+   LESSON DATA — the teacher replaces ONLY the object between the markers.
+   All texts for the learner (tr, intro, rules, notes, quiz questions, explanations)
+   are written in ONE help language, given in `lang`.
+   Schema:
+   {
+     day: Number, date: "YYYY-MM-DD", week: Number,
+     lang: "en" | "sv" | "fa",                        // today's help language (chosen at random)
+     theme: { fr: String, tr: String },
+     words: [ { fr, tr, example, example_tr, review?: true } ],        // 10–14 items
+     grammar: {
+       title: String,                                 // in French, e.g. "Le passé composé : avoir ou être ?"
+       intro: String,                                 // 1–2 sentences: what it is, when to use it
+       rules: [String],                               // 2–5 short rules, each with a French mini-example
+       table?: { caption?: String, headers: [String], rows: [[String]] },  // conjugation/forms (French)
+       examples: [ { fr, tr, note? } ],               // 3–5 example sentences; note = why (short)
+       watch_out?: { wrong, right, why }              // one typical mistake (French wrong/right)
+     },
+     reading: { title: String, lines: [ { fr, tr } ] },                 // exactly 5 short sentences
+     comprehension: {                                                   // reading comprehension
+       title: String,                                 // French title
+       kind: String,                                  // e.g. "Petite histoire", "Le saviez-vous ?", "Un e-mail", "Une annonce"
+       text: [String],                                // 6–10 simple French sentences
+       text_tr: String,                               // full translation (help language), hidden until clicked
+       questions: [ { q, options, answer, explain } ] // 4–5 questions: q + options in simple French, explain in help language
+     },
+     news: [ {                                                          // 1–3 REAL news items (or [] if none found)
+       title: String, title_tr: String,               // French headline + translation
+       place: String, date?: "YYYY-MM-DD",            // e.g. "Nice", "Antibes", "France"
+       lines: [ { fr, tr } ],                         // 2–4 simple French sentences, own words
+       source: { name: String, url: String }          // where the news comes from
+     } ],
+     conversation: { title: String, situation: String,
+                     lines: [ { speaker, fr, tr } ] },                  // 6–10 lines
+     numbers: [ { n: Number, fr: String, hint: String } ],              // 8–12 items
+     quiz: [ {                                                          // 10–20 questions
+       type: "vocab" | "grammar" | "reading" | "conversation" | "numbers",
+       q: String,              // the question (help language)
+       fr?: String,            // optional French sentence shown with a 🔊 button
+       listen?: true,          // if true, fr is NOT shown — only played (listening question)
+       options: [String],      // 3–4 options
+       answer: Number,         // index of the correct option in `options` (0-based)
+       explain: String         // short explanation (help language)
+     } ]
+   }
+   ========================================================================== */
+const LESSON = /*LESSON_DATA_START*/{
+  "day": 5,
+  "date": "2026-11-28",
+  "week": 1,
+  "lang": "en",
+  "theme": {
+    "fr": "Mon premier week-end à Antibes",
+    "tr": "My first weekend in Antibes"
+  },
+  "words": [
+    {
+      "fr": "la plage",
+      "tr": "beach",
+      "example": "Dimanche, nous sommes allés à la plage de la Gravette.",
+      "example_tr": "On Sunday we went to La Gravette beach."
+    },
+    {
+      "fr": "le port",
+      "tr": "harbour, port",
+      "example": "Le port Vauban est plein de bateaux.",
+      "example_tr": "Port Vauban is full of boats."
+    },
+    {
+      "fr": "la vieille ville",
+      "tr": "old town",
+      "example": "J'adore les petites rues de la vieille ville.",
+      "example_tr": "I love the little streets of the old town."
+    },
+    {
+      "fr": "les remparts (m)",
+      "tr": "city walls, ramparts",
+      "example": "Elle s'est promenée sur les remparts au bord de la mer.",
+      "example_tr": "She walked along the city walls by the sea."
+    },
+    {
+      "fr": "le marché",
+      "tr": "market",
+      "example": "Le marché provençal est ouvert le matin.",
+      "example_tr": "The Provençal market is open in the morning."
+    },
+    {
+      "fr": "se baigner",
+      "tr": "to swim, to bathe (in the sea)",
+      "example": "Il ne s'est pas baigné : la mer est trop froide en novembre !",
+      "example_tr": "He didn't go swimming: the sea is too cold in November!"
+    },
+    {
+      "fr": "sortir",
+      "tr": "to go out",
+      "example": "Samedi soir, nous sommes sortis avec des amis.",
+      "example_tr": "On Saturday evening we went out with friends."
+    },
+    {
+      "fr": "rentrer",
+      "tr": "to come back (home), to go home",
+      "example": "Je suis rentrée à la maison à minuit.",
+      "example_tr": "I came back home at midnight."
+    },
+    {
+      "fr": "se coucher",
+      "tr": "to go to bed",
+      "example": "Hier soir, je me suis couché très tard.",
+      "example_tr": "Last night I went to bed very late."
+    },
+    {
+      "fr": "le coucher de soleil",
+      "tr": "sunset",
+      "example": "On a regardé le coucher de soleil depuis le port.",
+      "example_tr": "We watched the sunset from the harbour."
+    },
+    {
+      "fr": "se reposer",
+      "tr": "to rest",
+      "example": "Dimanche matin, je me suis reposée à la maison.",
+      "example_tr": "On Sunday morning I rested at home.",
+      "review": true
+    },
+    {
+      "fr": "le portable",
+      "tr": "mobile phone",
+      "example": "J'ai pris des photos avec mon portable.",
+      "example_tr": "I took photos with my phone.",
+      "review": true
+    },
+    {
+      "fr": "le frigo",
+      "tr": "fridge",
+      "example": "Le frigo est vide : je dois faire les courses.",
+      "example_tr": "The fridge is empty: I have to do the shopping.",
+      "review": true
+    },
+    {
+      "fr": "avoir peur (de)",
+      "tr": "to be afraid (of)",
+      "example": "Elle n'a pas eu peur de l'eau froide.",
+      "example_tr": "She wasn't afraid of the cold water.",
+      "review": true
+    }
+  ],
+  "grammar": {
+    "title": "Raconter son week-end : avoir ou être ?",
+    "intro": "To tell what you did at the weekend, you need the passé composé. This page puts everything from this week together: when to use avoir, when to use être, and when the participle gets -e / -s.",
+    "rules": [
+      "Most verbs use « avoir », and the participle does NOT change with the subject: elle a acheté, elles ont mangé.",
+      "Movement verbs (aller, venir, sortir, rentrer, arriver, partir, monter, descendre, rester…) use « être », and the participle agrees with the subject: elle est sortie, ils sont rentrés.",
+      "Reflexive verbs (se lever, se baigner, se coucher…) always use « être » + agreement: nous nous sommes baignés, elles se sont couchées.",
+      "Negation goes around the pronoun + être: je ne me suis pas baigné(e), elle n'est pas sortie.",
+      "Sortir, rentrer, monter, descendre + a direct object use « avoir » (no agreement): elle a sorti la poubelle, il a monté les courses."
+    ],
+    "table": {
+      "caption": "Léa's Saturday — avoir or être?",
+      "headers": [
+        "verb",
+        "auxiliary",
+        "Léa (she)…"
+      ],
+      "rows": [
+        [
+          "se lever",
+          "être",
+          "elle s'est levée"
+        ],
+        [
+          "aller",
+          "être",
+          "elle est allée"
+        ],
+        [
+          "acheter",
+          "avoir",
+          "elle a acheté"
+        ],
+        [
+          "se baigner",
+          "être",
+          "elle ne s'est pas baignée"
+        ],
+        [
+          "sortir + object",
+          "avoir",
+          "elle a sorti son vélo"
+        ],
+        [
+          "rentrer",
+          "être",
+          "elle est rentrée"
+        ],
+        [
+          "se coucher",
+          "être",
+          "elle s'est couchée"
+        ]
+      ]
+    },
+    "examples": [
+      {
+        "fr": "Samedi, je suis allé au marché et j'ai acheté des olives.",
+        "tr": "On Saturday I went to the market and bought some olives.",
+        "note": "aller → être; acheter → avoir"
+      },
+      {
+        "fr": "Mes amies sont sorties et elles sont rentrées tard.",
+        "tr": "My friends (women) went out and came home late.",
+        "note": "être + feminine plural → -es"
+      },
+      {
+        "fr": "Nous nous sommes promenés sur les remparts.",
+        "tr": "We walked along the city walls.",
+        "note": "reflexive → être; nous (men or mixed) → -s"
+      },
+      {
+        "fr": "Elle ne s'est pas baignée.",
+        "tr": "She didn't go swimming.",
+        "note": "ne + s'est + pas + participle"
+      },
+      {
+        "fr": "Il a sorti la poubelle avant de se coucher.",
+        "tr": "He took the bin out before going to bed.",
+        "note": "sortir + direct object (la poubelle) → avoir"
+      }
+    ],
+    "watch_out": {
+      "wrong": "Il est sorti la poubelle.",
+      "right": "Il a sorti la poubelle.",
+      "why": "When sortir / monter / descendre / rentrer have a direct object (la poubelle, les courses), they take « avoir ». Without an object: il est sorti."
+    }
+  },
+  "reading": {
+    "title": "Un samedi au soleil",
+    "lines": [
+      {
+        "fr": "Samedi, Nadia et sa sœur se sont levées tard et elles se sont reposées.",
+        "tr": "On Saturday, Nadia and her sister got up late and had a rest."
+      },
+      {
+        "fr": "L'après-midi, elles sont allées au marché, dans la vieille ville.",
+        "tr": "In the afternoon they went to the market in the old town."
+      },
+      {
+        "fr": "Ensuite, elles se sont promenées sur les remparts et elles ont pris des photos du port.",
+        "tr": "Then they walked along the city walls and took photos of the harbour."
+      },
+      {
+        "fr": "Le soir, elles ont regardé le coucher de soleil sur la plage, mais elles ne se sont pas baignées : la mer est trop froide en novembre !",
+        "tr": "In the evening they watched the sunset on the beach, but they didn't swim: the sea is too cold in November!"
+      },
+      {
+        "fr": "Elles sont rentrées à dix heures et elles se sont couchées tout de suite.",
+        "tr": "They came home at ten o'clock and went straight to bed."
+      }
+    ]
+  },
+  "comprehension": {
+    "title": "Antibes, une ville avec une longue histoire",
+    "kind": "Le saviez-vous ?",
+    "text": [
+      "Antibes est une ville très ancienne, au bord de la Méditerranée.",
+      "Les Grecs ont fondé la ville il y a plus de 2 000 ans.",
+      "Ils ont donné à la ville le nom « Antipolis ».",
+      "Dans la vieille ville, il y a le château Grimaldi, au-dessus de la mer.",
+      "Aujourd'hui, c'est le musée Picasso.",
+      "Le peintre Pablo Picasso est venu à Antibes en 1946 et il a travaillé dans le château.",
+      "Antibes a aussi un très grand port : le port Vauban.",
+      "Là, on peut voir des bateaux de toutes les tailles, et même des yachts énormes.",
+      "Chaque été, en juillet, il y a un célèbre festival de jazz à Juan-les-Pins : « Jazz à Juan »."
+    ],
+    "text_tr": "Antibes is a very old town on the Mediterranean. The Greeks founded the town more than 2,000 years ago. They gave the town the name 'Antipolis'. In the old town there is the Grimaldi castle, above the sea. Today it is the Picasso museum. The painter Pablo Picasso came to Antibes in 1946 and worked in the castle. Antibes also has a very big harbour: Port Vauban. There you can see boats of all sizes, and even enormous yachts. Every summer, in July, there is a famous jazz festival in Juan-les-Pins: 'Jazz à Juan'.",
+    "questions": [
+      {
+        "q": "Qui a fondé Antibes ?",
+        "options": [
+          "Les Romains",
+          "Les Grecs",
+          "Les Italiens",
+          "Pablo Picasso"
+        ],
+        "answer": 1,
+        "explain": "Sentence 2: « Les Grecs ont fondé la ville il y a plus de 2 000 ans. »"
+      },
+      {
+        "q": "Qu'est-ce qu'il y a aujourd'hui dans le château Grimaldi ?",
+        "options": [
+          "la mairie",
+          "un hôtel",
+          "le musée Picasso",
+          "un marché"
+        ],
+        "answer": 2,
+        "explain": "Sentence 5: « Aujourd'hui, c'est le musée Picasso. »"
+      },
+      {
+        "q": "Quand est-ce que Picasso est venu à Antibes ?",
+        "options": [
+          "en 1946",
+          "en 1964",
+          "en 1896",
+          "en 2000"
+        ],
+        "answer": 0,
+        "explain": "Sentence 6: « Picasso est venu à Antibes en 1946 » (mille neuf cent quarante-six)."
+      },
+      {
+        "q": "Comment s'appelle le grand port d'Antibes ?",
+        "options": [
+          "le port Grimaldi",
+          "le port Antipolis",
+          "le port de Juan",
+          "le port Vauban"
+        ],
+        "answer": 3,
+        "explain": "Sentence 7: « Antibes a aussi un très grand port : le port Vauban. »"
+      },
+      {
+        "q": "Quand est-ce qu'il y a le festival « Jazz à Juan » ?",
+        "options": [
+          "en décembre",
+          "chaque week-end",
+          "au printemps",
+          "en juillet"
+        ],
+        "answer": 3,
+        "explain": "Last sentence: « Chaque été, en juillet, il y a un célèbre festival de jazz »."
+      }
+    ]
+  },
+  "news": [
+    {
+      "title": "Antibes s'illumine pour les fêtes",
+      "title_tr": "Antibes lights up for the holidays",
+      "place": "Antibes",
+      "date": "2026-11-27",
+      "lines": [
+        {
+          "fr": "Les illuminations de Noël ont commencé le vendredi 27 novembre à 17 heures.",
+          "tr": "The Christmas lights were switched on on Friday 27 November at 5 p.m."
+        },
+        {
+          "fr": "Il y a près de 1 011 décorations dans les rues et sur les places d'Antibes et de Juan-les-Pins.",
+          "tr": "There are almost 1,011 decorations in the streets and squares of Antibes and Juan-les-Pins."
+        },
+        {
+          "fr": "Jusqu'au 23 décembre, les lumières sont allumées de 17 heures à 22 heures. Du 24 décembre au 3 janvier, elles restent allumées jusqu'à 1 heure du matin.",
+          "tr": "Until 23 December the lights are on from 5 p.m. to 10 p.m. From 24 December to 3 January they stay on until 1 a.m."
+        },
+        {
+          "fr": "Devant la mairie, il y a un grand sapin, et la place Holstein a une étoile.",
+          "tr": "In front of the town hall there is a big Christmas tree, and Place Holstein has a star."
+        }
+      ],
+      "source": {
+        "name": "Ville d'Antibes Juan-les-Pins",
+        "url": "https://www.antibes-juanlespins.com/information/agenda/illuminations-de-noel"
+      }
+    },
+    {
+      "title": "Le village de Noël ouvre le 5 décembre",
+      "title_tr": "The Christmas village opens on 5 December",
+      "place": "Antibes",
+      "date": "2026-11-26",
+      "lines": [
+        {
+          "fr": "À Antibes, le village de Noël ouvre le 5 décembre sur l'esplanade du Pré des Pêcheurs, près du port.",
+          "tr": "In Antibes the Christmas village opens on 5 December on the Esplanade du Pré des Pêcheurs, near the harbour."
+        },
+        {
+          "fr": "Il est ouvert tous les jours de 11 heures à 21 heures, jusqu'au 3 janvier. L'entrée est libre.",
+          "tr": "It is open every day from 11 a.m. to 9 p.m., until 3 January. Entry is free."
+        },
+        {
+          "fr": "À partir du 19 décembre, il y a aussi une patinoire à Juan-les-Pins, dans la pinède Gould.",
+          "tr": "From 19 December there is also an ice rink in Juan-les-Pins, in the Pinède Gould."
+        },
+        {
+          "fr": "C'est gratuit pour les enfants jusqu'à 10 ans et ça coûte 3 euros pour les autres.",
+          "tr": "It is free for children up to 10 and costs 3 euros for everyone else."
+        }
+      ],
+      "source": {
+        "name": "RécréaNice",
+        "url": "https://recreanice.fr/fetes-animations-noel-antibes-juan-les-pins-enfants"
+      }
+    }
+  ],
+  "conversation": {
+    "title": "Lundi matin, devant l'ascenseur",
+    "situation": "Monday morning. Leïla meets her neighbour Thomas in front of the lift. They talk about the weekend.",
+    "lines": [
+      {
+        "speaker": "Thomas",
+        "fr": "Bonjour Leïla ! Vous avez passé un bon week-end ?",
+        "tr": "Hello Leïla! Did you have a good weekend?"
+      },
+      {
+        "speaker": "Leïla",
+        "fr": "Oui, très bon, merci ! Samedi, je suis allée au marché provençal.",
+        "tr": "Yes, very good, thanks! On Saturday I went to the Provençal market."
+      },
+      {
+        "speaker": "Thomas",
+        "fr": "Ah, et vous avez acheté quelque chose ?",
+        "tr": "Oh, and did you buy anything?"
+      },
+      {
+        "speaker": "Leïla",
+        "fr": "Des olives et du fromage. Après, je me suis promenée sur les remparts.",
+        "tr": "Some olives and cheese. Afterwards I walked along the city walls."
+      },
+      {
+        "speaker": "Thomas",
+        "fr": "Et dimanche ? Vous vous êtes baignée ?",
+        "tr": "And on Sunday? Did you go for a swim?"
+      },
+      {
+        "speaker": "Leïla",
+        "fr": "Non, j'ai eu peur de l'eau froide ! Mais j'ai regardé le coucher de soleil sur la plage.",
+        "tr": "No, I was afraid of the cold water! But I watched the sunset on the beach."
+      },
+      {
+        "speaker": "Thomas",
+        "fr": "Moi, je ne suis pas sorti. Je me suis reposé et j'ai rangé ma cave.",
+        "tr": "I didn't go out. I rested and tidied up my cellar."
+      },
+      {
+        "speaker": "Leïla",
+        "fr": "C'est bien aussi ! Bon, ce soir je rentre tôt : mon frigo est vide.",
+        "tr": "That's good too! Well, tonight I'm going home early: my fridge is empty."
+      }
+    ]
+  },
+  "numbers": [
+    {
+      "n": 171,
+      "fr": "cent soixante et onze",
+      "hint": "sahn swa-SAHNT ay OHNZ — 60 + 11"
+    },
+    {
+      "n": 280,
+      "fr": "deux cent quatre-vingts",
+      "hint": "duh sahn KA-truh VAN — 4 × 20, with -s at the end"
+    },
+    {
+      "n": 299,
+      "fr": "deux cent quatre-vingt-dix-neuf",
+      "hint": "duh sahn ka-truh-van-deez-NUHF — 4 × 20 + 19"
+    },
+    {
+      "n": 381,
+      "fr": "trois cent quatre-vingt-un",
+      "hint": "trwah sahn ka-truh-van-UHN — no « et » with 81"
+    },
+    {
+      "n": 470,
+      "fr": "quatre cent soixante-dix",
+      "hint": "KA-truh sahn swa-sahnt-DEES — 60 + 10"
+    },
+    {
+      "n": 571,
+      "fr": "cinq cent soixante et onze",
+      "hint": "sank sahn swa-SAHNT ay OHNZ"
+    },
+    {
+      "n": 690,
+      "fr": "six cent quatre-vingt-dix",
+      "hint": "see sahn ka-truh-van-DEES — 4 × 20 + 10"
+    },
+    {
+      "n": 800,
+      "fr": "huit cents",
+      "hint": "wee SAHN — « cents » with -s when nothing follows"
+    },
+    {
+      "n": 991,
+      "fr": "neuf cent quatre-vingt-onze",
+      "hint": "nuhf sahn ka-truh-van-OHNZ — 4 × 20 + 11"
+    },
+    {
+      "n": 1011,
+      "fr": "mille onze",
+      "hint": "meel OHNZ — never « un mille »"
+    },
+    {
+      "n": 1180,
+      "fr": "mille cent quatre-vingts",
+      "hint": "meel sahn ka-truh-VAN"
+    },
+    {
+      "n": 1250,
+      "fr": "mille deux cent cinquante",
+      "hint": "meel duh sahn san-KAHNT"
+    }
+  ],
+  "quiz": [
+    {
+      "type": "vocab",
+      "q": "What does « le coucher de soleil » mean?",
+      "options": [
+        "sunrise",
+        "bedtime",
+        "sunset",
+        "sun cream"
+      ],
+      "answer": 2,
+      "explain": "le coucher de soleil = sunset (the sun 'goes to bed'). Sunrise = le lever de soleil."
+    },
+    {
+      "type": "vocab",
+      "q": "Which verb means 'to swim / to bathe in the sea'?",
+      "options": [
+        "se coucher",
+        "se baigner",
+        "se reposer",
+        "se promener"
+      ],
+      "answer": 1,
+      "explain": "se baigner = to swim, to bathe. se coucher = go to bed, se reposer = rest, se promener = go for a walk."
+    },
+    {
+      "type": "vocab",
+      "q": "What are « les remparts » in Antibes?",
+      "options": [
+        "the old city walls",
+        "the harbour",
+        "the market hall",
+        "the beach huts"
+      ],
+      "answer": 0,
+      "explain": "les remparts = the old city walls along the sea in the old town."
+    },
+    {
+      "type": "vocab",
+      "q": "Choose the right word.",
+      "fr": "Je ne peux pas t'appeler : j'ai oublié mon ___ .",
+      "options": [
+        "frigo",
+        "portable",
+        "compteur",
+        "carton"
+      ],
+      "answer": 1,
+      "explain": "le portable = mobile phone: you call with it. Le frigo = fridge, le compteur = meter, le carton = box."
+    },
+    {
+      "type": "grammar",
+      "q": "Choose the correct form (Nadia + her sister = two women).",
+      "fr": "Samedi, Nadia et sa sœur se sont ___ tard.",
+      "options": [
+        "levé",
+        "levés",
+        "levée",
+        "levées"
+      ],
+      "answer": 3,
+      "explain": "Reflexive verb → être → agreement with the subject. Two women = feminine plural → + es: elles se sont levées."
+    },
+    {
+      "type": "grammar",
+      "q": "A woman says she didn't go swimming. Which sentence is correct?",
+      "options": [
+        "Je me ne suis pas baignée.",
+        "Je ne suis pas me baignée.",
+        "Je ne me suis pas baignée.",
+        "Je ne me suis baignée pas."
+      ],
+      "answer": 2,
+      "explain": "« ne » comes before the pronoun (me), « pas » comes after « être » (suis): je ne me suis pas baignée."
+    },
+    {
+      "type": "grammar",
+      "q": "Choose the auxiliary.",
+      "fr": "Hier soir, mon voisin ___ sorti la poubelle.",
+      "options": [
+        "est",
+        "a",
+        "s'est",
+        "sont"
+      ],
+      "answer": 1,
+      "explain": "sortir + a direct object (la poubelle) → avoir: il a sorti la poubelle. Without an object: il est sorti (he went out)."
+    },
+    {
+      "type": "grammar",
+      "q": "Choose the correct form.",
+      "fr": "Léa ___ à minuit.",
+      "options": [
+        "a rentré",
+        "est rentré",
+        "est rentrée",
+        "a rentrée"
+      ],
+      "answer": 2,
+      "explain": "rentrer (no object) → être, and the participle agrees: Léa = feminine → rentrée."
+    },
+    {
+      "type": "grammar",
+      "q": "Choose the correct sentence (review: irregular participle).",
+      "options": [
+        "Nous sommes pris le bus.",
+        "Nous avons prendu le bus.",
+        "Nous avons pris le bus.",
+        "Nous sommes prendus le bus."
+      ],
+      "answer": 2,
+      "explain": "prendre → avoir (it is not a movement verb) and the participle is irregular: pris."
+    },
+    {
+      "type": "grammar",
+      "q": "Choose the correct beginning.",
+      "fr": "Hier, ___ couché très tard.",
+      "options": [
+        "je m'ai",
+        "je me suis",
+        "j'ai",
+        "je suis"
+      ],
+      "answer": 1,
+      "explain": "se coucher is reflexive → always être: je me suis couché(e). Never « je m'ai »."
+    },
+    {
+      "type": "reading",
+      "q": "Reading: what did Nadia and her sister NOT do?",
+      "options": [
+        "They didn't go to the market.",
+        "They didn't take photos.",
+        "They didn't swim.",
+        "They didn't watch the sunset."
+      ],
+      "answer": 2,
+      "explain": "« elles ne se sont pas baignées : la mer est trop froide en novembre ! »"
+    },
+    {
+      "type": "reading",
+      "q": "Reading: when did they come home?",
+      "options": [
+        "at ten o'clock",
+        "at midnight",
+        "at two o'clock",
+        "in the afternoon"
+      ],
+      "answer": 0,
+      "explain": "« Elles sont rentrées à dix heures » (dix heures = ten o'clock)."
+    },
+    {
+      "type": "conversation",
+      "q": "Dialogue: what did Leïla buy at the market?",
+      "options": [
+        "bread and croissants",
+        "olives and cheese",
+        "fish",
+        "flowers"
+      ],
+      "answer": 1,
+      "explain": "« Des olives et du fromage. »"
+    },
+    {
+      "type": "conversation",
+      "q": "Dialogue: what did Thomas do at the weekend?",
+      "options": [
+        "He went swimming.",
+        "He went to the market.",
+        "He rested and tidied his cellar.",
+        "He went out with friends."
+      ],
+      "answer": 2,
+      "explain": "« Je ne suis pas sorti. Je me suis reposé et j'ai rangé ma cave. »"
+    },
+    {
+      "type": "numbers",
+      "q": "How do you say 280 in French?",
+      "options": [
+        "deux cents quatre-vingt",
+        "deux cent quatre-vingts",
+        "deux cent huitante",
+        "deux cents quatre-vingts"
+      ],
+      "answer": 1,
+      "explain": "80 = quatre-vingts (with -s, because nothing follows). « cent » has no -s, because another number follows it."
+    },
+    {
+      "type": "numbers",
+      "q": "Listen. Which number do you hear?",
+      "fr": "cinq cent soixante et onze",
+      "listen": true,
+      "options": [
+        "561",
+        "591",
+        "571",
+        "531"
+      ],
+      "answer": 2,
+      "explain": "cinq cent soixante et onze = 500 + 60 + 11 = 571."
+    },
+    {
+      "type": "numbers",
+      "q": "How do you say 1 011 (the number of Christmas decorations in Antibes)?",
+      "options": [
+        "un mille onze",
+        "mille et onze",
+        "mille onze",
+        "mil un onze"
+      ],
+      "answer": 2,
+      "explain": "1 000 = mille (never « un mille »), and no « et »: mille onze."
+    },
+    {
+      "type": "reading",
+      "q": "News: until 23 December, when are the Christmas lights in Antibes switched on?",
+      "options": [
+        "from 11 a.m. to 9 p.m.",
+        "from 5 p.m. to 10 p.m.",
+        "from 5 p.m. to 1 a.m.",
+        "all night"
+      ],
+      "answer": 1,
+      "explain": "« Jusqu'au 23 décembre, les lumières sont allumées de 17 heures à 22 heures. » (until 1 a.m. only from 24 December)."
+    }
+  ]
+}/*LESSON_DATA_END*/;
+</script>
+<script src="../assets/lesson.js"></script>
+</body>
+</html>

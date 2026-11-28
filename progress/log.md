@@ -2,6 +2,15 @@
 
 Newest entry first. Format: see CLAUDE.md §4.
 
+## Day 5 — 2026-11-28 — Mon premier week-end à Antibes (My first weekend in Antibes)
+- **Type:** daily page
+- **Week / curriculum:** Week 1 — passé composé review: avoir or être, agreement, reflexive verbs + negation, sortir/rentrer/monter + object → avoir — numbers 100–1 250
+- **New words (10):** la plage, le port, la vieille ville, les remparts, le marché, se baigner, sortir, rentrer, se coucher, le coucher de soleil
+- **Reviewed (4):** se reposer, le portable, le frigo, avoir peur (de)
+- **Page:** days/2026-11-28.html (18 quiz questions, help language: English; 2 news items: Antibes Christmas lights, Antibes Christmas village + Juan-les-Pins ice rink)
+- **Results:** feedback imported from issues #3 (voice lesson 2026-11-27) and #4 (Day 4). Day 4: daily quiz 12/18, missed Q8 grammar (elles se sont installées), Q9 grammar (ne me suis pas), Q11 grammar (monter + object → avoir, 2nd time), Q12 reading, Q14 conversation, Q18 numbers (471); reading comprehension 5/5; word drill 13/14 (missed: la place); numbers 8/8. All three missed grammar points practised again today (Q5, Q6, Q7). 13 new rows / 2 repeated mistakes in mistakes.md.
+- **Notes / next time:** Day 6: last new day of week 1 — keep mixing avoir/être; tomorrow many words are due (Day-2 furniture words, Day-3 words, voice-lesson words) — pick the oldest. Day 7 = review day (20 questions).
+
 ## Day 4 — 2026-11-27 — Découvrir le quartier (Discovering the neighbourhood)
 - **Type:** daily page
 - **Week / curriculum:** Week 1 — passé composé: reflexive verbs with *être* + agreement (*je me suis promené(e)*, *elles se sont installées*, negation *je ne me suis pas perdu*) — numbers 100–1 250
